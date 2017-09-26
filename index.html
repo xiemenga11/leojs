@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>leojs</title>
+</head>
+<body>
+
+<script src="leo.js"></script>
+<script>
+	var i = 0;
+	// function step(){
+	// 	i++;
+	// 	console.log(i);
+	// 	l.aniFrm(step);
+	// 	// requestAnimationFrame(step)
+	// }
+	// step();
+	var leo = {
+		name:'leoxie',
+		age:'32',
+		job:'worker'
+	}
+	leo.each(function(i){
+		console.log(i + ":" + this);
+	})
+
+	var person = function(){
+		this.name = 'leo';
+	}
+	person.prototype = {
+		say:function(){
+			alert(this.name);
+		}
+	}
+
+	var zheng = function(){
+		this.name = 'zheng';
+		this.age = 23;
+		this.job = 'worker';
+	}
+	zheng.extend(person,{
+		config:function(){
+			alert(this.name + ":" + this.job + ":" + this.age)
+		}
+	})
+
+	var p = new person();
+	p.say();
+	var z = new zheng();
+	z.say();
+	z.config();
+	var le = function(name){
+		this.name = name;
+		this.age = 36;
+	}
+	le.extend(zheng)
+	var ll = new le('xiemeng');
+	ll.config();
+	</script>
+</body>
+</html>
