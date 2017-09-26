@@ -58,6 +58,15 @@
 
 	};
 
+	l.aniFrm = function(func){
+		var _r = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function(func){
+			setTimeout(func,30);
+		}
+		return _r(func);
+	}
+	l.cancelAniFrm = function(aniFrm){
+		cancelAnimationFrame(aniFrm);
+	}
 	l.ajax = function (data){
 		var _formdata = data.form ? data.form : null;
 		var form = new FormData(_formdata);

@@ -57,6 +57,18 @@
 	le.extend(zheng)
 	var ll = new le('xiemeng');
 	ll.config();
+
+	var i = 0;
+	var start = '';
+	function step(){
+		i++;
+		console.log(i);
+		start = l.aniFrm(step);
+		if(i > 1000){
+			l.cancelAniFrm(start);
+		}
+	}
+	step();
 	</script>
 </body>
 </html>
