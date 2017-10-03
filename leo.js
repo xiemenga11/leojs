@@ -193,7 +193,20 @@
 	    return url
 
 	};
-
+	l.store = {
+		add:function(key,value){
+			localStorage[key] = value;
+		},
+		get:function(key){
+			return localStorage[key];
+		},
+		rm:function(key){
+			localStorage.removeItem(key);
+		},
+		rmAll:function(){
+			localStorage.clear();
+		}
+	}
 	l.aniFrm = function(func){
 		var _r = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function(func){
 			setTimeout(func,30);
@@ -271,6 +284,11 @@
 	}
 	l.getScrollTop = function(){
 		return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+	}
+	l.random = function(min,max){
+		var min = min || 0;
+		var max = max || 1;
+		return Math.random() * max + min;
 	}
 	Object.prototype.each = function(callback){
 		l.each(this,function(i){
