@@ -77,6 +77,27 @@
 		},
 		offset:function(attr){
 			return this.dom["offset"+attr.firstUpper()];
+		},
+		css:function(css){
+			var that = this;
+			if(css){
+				if(l.isObject(css)){
+					css.each(function(i){
+						that.dom.style[i] = this;
+					})
+				}
+				return this;
+			}else{
+				return this.dom.style[css];
+			}
+		},
+		html:function(html){
+			if(html || html == 0){
+				this.dom.innerHTML = html;
+				return this;
+			}else{
+				return this.dom.innerHTML;
+			}
 		}
 	}
 	w.l = l = function(dom){

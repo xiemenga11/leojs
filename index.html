@@ -14,7 +14,14 @@
 	</style>
 </head>
 <body>	
+<div id="leo" style="color:red;">red</div>
 <script src="leo.js"></script>
-<script></script>
+<script>
+	var leo = l(l.id('leo'));
+	leo.css({
+		color:'blue',
+		fontSize:'40px'
+	}).html('leoxie is awesome')
+</script>
 </body>
 </html>
