@@ -40,6 +40,18 @@
 	}
 
 	_l.prototype = {
+		data:function(){
+			if(arguments.length == 1 && l.isObject(arguments[0])){
+				for(var i in arguments){
+					this.dom.dataset[i] = arguments[i];
+				}
+			}else if(arguments.length > 1){
+				this.dom.dataset[arguments[0]] = arguments[1];
+			}else if(arguments.length == 1 && l.isString(arguments[0])){
+				return this.dom.dataset[arguments[0]];
+			}
+			return this;
+		},
 		cls:function(){
 			return this.dom.classList ? this.dom.classList : new ClassList(this.dom);
 		},
@@ -76,7 +88,7 @@
 			return this;
 		},
 		offset:function(attr){
-			return this.dom["offset"+attr.firstUpper()];
+			return this.dom["offset"+attr];
 		},
 		css:function(css){
 			var that = this;
@@ -141,16 +153,24 @@
 				_dom[i] = data.property[i];
 			}
 		}
+		if(data.data){
+			for(var i in data.data){
+				_dom.dataset[i] = data.data[i];
+			}
+		}
 		if(data._class){
 			_dom.className = data._class;
 		}
 		if(data.style){
 			for(var i in data.style){
-				_dom[i].style[i] = data.style[i];
+				_dom.style[i] = data.style[i];
 			}
 		}
 		if(data.content){
 			_dom.innerHTML = data.content;
+		}
+		if(data.parent){
+			l(data.parent).append(_dom);
 		}
 		return _dom;
 	}
@@ -316,6 +336,7 @@
 			callback.call(this,i);
 		})
 	}
+	Object.defineProperty(Object.prototype,'each',{enumerable:false})
 	Function.prototype.extend = function(parent,method){
 		this.prototype = new parent();
 		if(method){
@@ -325,5 +346,11 @@
 			})
 		}
 	}
-	Object.defineProperty(Object.prototype,'each',{enumerable:false})
+
+	if (!Array.prototype.shuffle) {
+	    Array.prototype.shuffle = function() {
+	        for(var j, x, i = this.length; i; j = parseInt(Math.random() * i), x = this[--i], this[i] = this[j], this[j] = x);
+	        return this;
+	    };
+	}
 }(window,document))
