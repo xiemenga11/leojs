@@ -22,6 +22,28 @@
 		color:'blue',
 		fontSize:'40px'
 	}).html('leoxie is awesome')
+
+	var a = {
+		name:'leo',
+		age:26
+	}
+	console.dir(a);
+	var b = ['meng','haha']
+	console.dir(b);
+	a.extend(b);
+	console.dir(a);
+
+	a = {
+		config:function(){
+			alert(this.html());
+		},
+		getCss:function(){
+			alert(this.css('height'))
+		}
+	}
+	l.PLUS(a);
+	l(l.id('leo')).config();
+	l(l.id('leo')).getCss();
 </script>
 </body>
 </html>

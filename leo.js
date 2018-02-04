@@ -35,6 +35,7 @@
 	}
 
 
+
 	var _l = function(dom){
 		this.dom = dom;
 	}
@@ -91,16 +92,22 @@
 			return this.dom["offset"+attr];
 		},
 		css:function(css){
+			var ret;
 			var that = this;
 			if(css){
 				if(l.isObject(css)){
 					css.each(function(i){
 						that.dom.style[i] = this;
 					})
+					return this;
+				}else{
+					if(window.getComputedStyle){
+						ret = window.getComputedStyle(this.dom,null)[css];
+					}else{
+						ret = this.dom.currentStyle[css];
+					}
+					return ret;
 				}
-				return this;
-			}else{
-				return this.dom.style[css];
 			}
 		},
 		html:function(html){
@@ -110,11 +117,21 @@
 			}else{
 				return this.dom.innerHTML;
 			}
+		},
+		val:function(value){
+			if(value || value == 0){
+				this.dom.value = value;
+			}else{
+				return this.dom.value;
+			}
 		}
 	}
+	
 	w.l = l = function(dom){
 		return new _l(dom);
 	}
+
+	
 	// l.aniFrm = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 	l.info = {
 		version:'1.0.0',
@@ -122,26 +139,60 @@
 		email:'xiemenga11@126.com'
 	}
 
+	// l.diag = {
+	// 	mask:l.create({
+	// 		tag:'div',
+	// 		style:{
+	// 			width:window.innerWidth + "px",
+	// 			height:window.innerHeight + "px",
+	// 			backgroundColor:'rgba(0,0,0,0.3)',
+				
+	// 		}
+	// 	}),
+	// 	alert:function(str){
+
+	// 	}
+	// }	
+
 	l.id = function(id){
-		return document.getElementById(id);
+		return new _l(document.getElementById(id));
 	}
 	l._class = function(cls,parent){
+		var reg = /\[\d+\]/;
+		var index = 0;
+		var p = parent || document;
+		if(reg.test(cls)){
+			index = parseInt(cls.match(reg)[0]);
+		}
+		return new _l(p.getElementsByClassName(cls)[index]);
+	}
+	l.tag = function(tag,parent){
+		var reg = /\[\d+\]/;
+		var index = 0;
+		var p = parent || document;
+		if(reg.test(tag)){
+			index = parseInt(cls.match(reg)[0]);
+		}
+		return new _l(p.getElementsByTagName(tag)[index]);
+	}
+	l._classAll = function(cls,parent){
 		var p = parent || document;
 		return p.getElementsByClassName(cls);
 	}
-	l.tag = function(tag,parent){
+	l.tagAll = function(tag,parent){
 		var p = parent || document;
-		return p.getElementsByTagNames(tag);
+		return p.getElementsByTagName(tag);
 	}
 	/**
 	 * 创建元素
 	 * @param  {obj} data 配置属性
 	 * data = {
 	 * 	tag:(str)元素名称,
-	 * 	property:(obj)元素属性,比如href,src等等,
+	 * 	attr:(obj)元素属性,比如href,src等等,
 	 * 	_class:(str)样式名称,
 	 * 	style:(obj)行内样式,
-	 * 	content:(str)内容
+	 * 	content:(str)内容,
+	 * 	parent:(dom)父元素
 	 * }
 	 * @return {dom}      创建的元素
 	 */
@@ -177,7 +228,7 @@
 	l.require = function(src,callback){
 		var _req = l.create({
 			tag:'script',
-			property:{
+			property:{   
 				src:src
 			}
 		})
@@ -211,7 +262,11 @@
 
 		}
 	}
-
+	/**
+	 * 生成文件路径
+	 * @param  {object} file input['file'].files[0]的文件流
+	 * @return {str}      生成的文件路径
+	 */
 	l.fileUrl = function (file) {
 	    var url = null;
 	    if (window.createObjectURL != undefined) {
@@ -234,6 +289,7 @@
 	    return url
 
 	};
+	//localstorage
 	l.store = {
 		add:function(key,value){
 			localStorage[key] = value;
@@ -248,6 +304,16 @@
 			localStorage.clear();
 		}
 	}
+
+	// screen
+	l.scr = {
+		AH:screen.availHeight,
+		AW:screen.availWidth,
+		H:screen.height,
+		W:screen.width
+	}
+	
+	//requestAnimationFrame
 	l.aniFrm = function(func){
 		var _r = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function(func){
 			setTimeout(func,30);
@@ -257,6 +323,15 @@
 	l.cancelAniFrm = function(aniFrm){
 		cancelAnimationFrame(aniFrm);
 	}
+
+	// ajax
+	// data = {
+	// 		method:get|post,
+	// 		url:地址,
+	// 		callback:回调函数,
+	// 		data:{key:value},
+	// 		file:{key:input.files[0] || input.files}    input.files 是数组
+	// }
 	l.ajax = function (data){
 		var _formdata = data.form ? data.form : null;
 		var form = new FormData(_formdata);
@@ -271,7 +346,7 @@
 			for(var j in data.file){
 				if(data.file[j].length){
 					for(var k = 0; k < data.file[j].length; k++){
-						form.append(j,data.file[j][k]);
+						form.append(j+"[]",data.file[j][k]);
 					}
 				}else{
 					form.append(j,data.file[j]);
@@ -291,10 +366,10 @@
 		return (typeof data === "string");
 	}
 	l.isObject = function(data){
-		return ((data instanceof Object) && !(data instanceof Array));
+		return ((data instanceof Object) && !(data instanceof Array) && !l.isArray(data));
 	}
 	l.isArray = function(data){
-		return ((data instanceof Object) && (data instanceof Array));
+		return ((data instanceof Object) && (data instanceof Array) && !!data.length);
 	}
 	l.isFunction = function(data){
 		return (typeof data === "function");
@@ -331,12 +406,34 @@
 		var max = max || 1;
 		return Math.random() * max + min;
 	}
-	Object.prototype.each = function(callback){
-		l.each(this,function(i){
-			callback.call(this,i);
-		})
+	/**
+	 * 添加插件
+	 * @param {obj} method 添加方法对象
+	 */
+	l.PLUS = function(method){
+		_l.prototype.extend(method);	
 	}
-	Object.defineProperty(Object.prototype,'each',{enumerable:false})
+	Object.prototype.each = function(callback){
+		if(this.length){
+			for(var i = 0,len = this.length; i < len; i++){
+				var ret = callback.call(this[i],i);
+				if(ret == "continue") continue;
+				if(ret == "break") break;
+			}
+		}else{
+			l.each(this,function(i){
+				callback.call(this,i);
+			})
+		}
+	}
+	Object.prototype.extend = function(plus){
+		if(l.isObject(plus) || l.isArray(plus)){
+			for(var i in plus){
+				this[i] = plus[i]
+			}
+		}
+	}
+	
 	Function.prototype.extend = function(parent,method){
 		this.prototype = new parent();
 		if(method){
@@ -347,10 +444,24 @@
 		}
 	}
 
+	// Array.prototype.times = function(callback){
+	// 	for(var i = 0,len = this.length; i < len; i++){
+	// 		var ret = callback.call(this[i],i);
+	// 		if(ret == "continue") continue;
+	// 		if(ret == "break") break;
+	// 	}
+	// }
+
 	if (!Array.prototype.shuffle) {
 	    Array.prototype.shuffle = function() {
 	        for(var j, x, i = this.length; i; j = parseInt(Math.random() * i), x = this[--i], this[i] = this[j], this[j] = x);
 	        return this;
 	    };
 	}
+	String.prototype.toJson = function(){
+		return l.strToJson(this);
+	}
+	Object.defineProperty(Object.prototype,'each',{enumerable:false})
+	Object.defineProperty(Object.prototype,'extend',{enumerable:false})
+	Object.defineProperty(Array.prototype,'shuffle',{enumerable:false})
 }(window,document))
