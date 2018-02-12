@@ -57,8 +57,10 @@
 			return this.dom.classList ? this.dom.classList : new ClassList(this.dom);
 		},
 		append:function(dom,i){
+			var dom = (dom instanceof _l) ? dom.dom : dom;
+			var brother = l.isNumber(i) ? this.dom.children[i] : i;
 			if(i){
-				this.dom.insertBefore(dom,this.dom.children[i]);
+				this.dom.insertBefore(dom,brother);
 			}else{
 				this.dom.appendChild(dom);
 			}
@@ -110,25 +112,20 @@
 				}
 			}
 		},
-		html:function(html){
-			if(html || html == 0){
-				this.dom.innerHTML = html;
-				return this;
-			}else{
-				return this.dom.innerHTML;
-			}
-		},
 		val:function(value){
 			if(value || value == 0){
 				this.dom.value = value;
 			}else{
 				return this.dom.value;
 			}
+		},
+		remove:function(){
+			this.dom.parentNode.removeChild(this.dom)
 		}
 	}
 	
 	w.l = l = function(dom){
-		return new _l(dom);
+		return (dom instanceof _l) ? dom : new _l(dom);
 	}
 
 	
@@ -192,7 +189,7 @@
 	 * 	_class:(str)样式名称,
 	 * 	style:(obj)行内样式,
 	 * 	content:(str)内容,
-	 * 	parent:(dom)父元素
+	 * 	parent:(dom | ldom)父元素
 	 * }
 	 * @return {dom}      创建的元素
 	 */
@@ -218,12 +215,17 @@
 			}
 		}
 		if(data.content){
-			_dom.innerHTML = data.content;
+			if(l.isString(data.content)){
+				_dom.innerHTML = data.content;
+			}else{
+				var content = (data.content instanceof _l) ? data.content.dom : data.content;
+				l(_dom).append(data.content);
+			}
 		}
 		if(data.parent){
 			l(data.parent).append(_dom);
 		}
-		return _dom;
+		return new _l(_dom);
 	}
 	l.require = function(src,callback){
 		var _req = l.create({
@@ -320,6 +322,11 @@
 		}
 		return _r(func);
 	}
+	/**
+	 * 取消anifrm
+	 * @param  {obje} aniFrm l.aniFrm返回的handle
+	 * @return {[type]}        [description]
+	 */
 	l.cancelAniFrm = function(aniFrm){
 		cancelAnimationFrame(aniFrm);
 	}

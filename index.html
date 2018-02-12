@@ -3,47 +3,17 @@
 <head>
 	<meta charset="UTF-8">
 	<title>leojs</title>
+	<link rel="stylesheet" href="css/leo.main.css">
 	<style>
-	.red{
-		color:red;
-	}
-	.bgblue{
-
-		background-color: blue;
-	}
+	
 	</style>
 </head>
-<body>	
-<div id="leo" style="color:red;">red</div>
-<script src="leo.js"></script>
+<body>
+<div id="father" class="leo-bg-blue">father</div>
+<div id="child" style="width:300px;" class="leo-bg-black">i am child</div>
+<script src="js/leo.js"></script>
 <script>
-	var leo = l(l.id('leo'));
-	leo.css({
-		color:'blue',
-		fontSize:'40px'
-	}).html('leoxie is awesome')
-
-	var a = {
-		name:'leo',
-		age:26
-	}
-	console.dir(a);
-	var b = ['meng','haha']
-	console.dir(b);
-	a.extend(b);
-	console.dir(a);
-
-	a = {
-		config:function(){
-			alert(this.html());
-		},
-		getCss:function(){
-			alert(this.css('height'))
-		}
-	}
-	l.PLUS(a);
-	l(l.id('leo')).config();
-	l(l.id('leo')).getCss();
+	 	
 </script>
 </body>
 </html>
