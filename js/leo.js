@@ -58,8 +58,8 @@
 		},
 		append:function(dom,i){
 			var dom = (dom instanceof _l) ? dom.dom : dom;
-			var brother = l.isNumber(i) ? this.dom.children[i] : i;
 			if(i){
+				var brother = l.isNumber(i) ? this.dom.children[i] : i;
 				this.dom.insertBefore(dom,brother);
 			}else{
 				this.dom.appendChild(dom);
@@ -91,7 +91,7 @@
 			return this;
 		},
 		offset:function(attr){
-			return this.dom["offset"+attr];
+			return this.dom["offset"+attr.capital()];
 		},
 		css:function(css){
 			var ret;
@@ -376,7 +376,7 @@
 		return ((data instanceof Object) && !(data instanceof Array) && !l.isArray(data));
 	}
 	l.isArray = function(data){
-		return ((data instanceof Object) && (data instanceof Array) && !!data.length);
+		return ((data instanceof Object) && (data instanceof Array) && !!data.length && data.constructor == Array);
 	}
 	l.isFunction = function(data){
 		return (typeof data === "function");
@@ -467,6 +467,15 @@
 	}
 	String.prototype.toJson = function(){
 		return l.strToJson(this);
+	}
+	String.prototype.upper = function(){
+		return this.toUpperCase()
+	}
+	String.prototype.lower = function(){
+		return this.toLowerCase();
+	}
+	String.prototype.capital = function(){
+		return this.replace(this.charAt(0),this.charAt(0).toUpperCase());
 	}
 	Object.defineProperty(Object.prototype,'each',{enumerable:false})
 	Object.defineProperty(Object.prototype,'extend',{enumerable:false})
