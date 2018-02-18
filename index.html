@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>leojs</title>
-	<link rel="stylesheet" href="css/leo.main.css">
+	<link rel="stylesheet" href="css/main.css">
 	<style>
 	.input-raw{
 		border:1px solid #ddd;
@@ -21,58 +21,47 @@
 	#todoList li{
 		cursor:default;
 	}
+	.res,
+	.editor{
+		border:1px solid #ddd;
+		border-radius: 5px;
+		padding:10px;
+		width:500px;
+		min-height:300px;
+		margin:20px auto;
+	}
 	</style>
 </head>
 <body>
-<div class="raw pad">
-	<div class="input-raw wid3">
-		<div class="label pad">todo</div>
-		<input type="text" class="todo">
-	</div>
-	<div id="add" data-role="button" class="mar-l">addToDo</div>
-</div>
-<div class="raw pad">
-	<ul id="todoList">
-		<li v-for="t,index in todo" :data-index="index">{{t}}</li>
-	</ul>
+<div style="width:500px;margin:0 auto;">
+	<div class="editor"></div>
+	<button id="sub">sub</button>
+	<button id="bold">bold</button>
+	<button id="addImg">addImg</button>
+	<input type="color" id="clo">
+	<div class="res"></div>
 </div>
 <script src="js/vue.js"></script>
 <script src="js/leo.js"></script>
+<script src="js/leo.editor.js"></script>
 <script>
-	var todoList = new Vue({
-		el:'#todoList',
-		data:{
-			todo:l.store.get('todolist') ? l.store.get('todolist').toJson() : []
-		}
-	})
-	l.id('add').on('click',addToDo)
+	var edi = l._class('editor').editor()
 
-	l.id('todoList').on('click',function(e){
-		var e = e || event;
-		if(e.target.tagName.toLowerCase() == 'li'){
-			var prom = confirm('要删除这一条TODO吗？')
-			if(prom){
-				var _list = l.store.get('todolist').toJson()
-				delete _list[e.target.dataset['index']]
-				todoList.todo = _list;
-				l.store.add('todolist',l.jsonToStr(_list));
-			}
+	var func = function(){
+	}
+	func.call(l.id('addImg'))
+	func.prototype = {
+		alt:function(){
+			alert(this.html())
+		}
+	}
+	l.PLUS({
+		func:function(){
+			return new func()
 		}
 	})
-	function addToDo(){
-		if(!l._class('todo').val()){
-			alert('请输入');
-			return;
-		} 
-		if(!l.store.get('todolist')){
-			l.store.add('todolist',l.jsonToStr([]));
-		}
-		var list = l.store.get('todolist').toJson();
-		list.push(l._class('todo').val());
-		todoList.todo = list;
-		l.store.add('todolist',l.jsonToStr(list));
-		l._class('todo').val("")
-	}
+	new func().alt()
+	// l.id('addImg').func().alt()
 </script>
 </body>
 </html>

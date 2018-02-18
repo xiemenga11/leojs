@@ -37,7 +37,7 @@
 
 
 	var _l = function(dom){
-		this.dom = dom;
+		this.dom = dom || document;
 	}
 
 	_l.prototype = {
@@ -80,6 +80,18 @@
 			}else{
 				this.dom.attachEvent("on"+event, callback);
 			}
+			return this;
+		},
+		click:function(callback){
+			this.on('click',callback)
+			return this;
+		},
+		hover:function(callback){
+			this.on('mouseover',callback);
+			return this;
+		},
+		out:function(callback){
+			this.on('mouseout',callback);
 			return this;
 		},
 		off:function(event,callback){
@@ -184,6 +196,7 @@
 	 * 创建元素
 	 * @param  {obj} data 配置属性
 	 * data = {
+	 * 	data:(obj) dataset属性
 	 * 	tag:(str)元素名称,
 	 * 	attr:(obj)元素属性,比如href,src等等,
 	 * 	_class:(str)样式名称,
@@ -196,9 +209,9 @@
 	l.create = function(data){
 		if(!data.tag) return;
 		var _dom = document.createElement(data.tag);
-		if(data.property){
-			for(var i in data.property){
-				_dom[i] = data.property[i];
+		if(data.attr){
+			for(var i in data.attr){
+				_dom[i] = data.attr[i];
 			}
 		}
 		if(data.data){
@@ -219,7 +232,7 @@
 				_dom.innerHTML = data.content;
 			}else{
 				var content = (data.content instanceof _l) ? data.content.dom : data.content;
-				l(_dom).append(data.content);
+				l(_dom).append(content);
 			}
 		}
 		if(data.parent){
@@ -476,6 +489,15 @@
 	}
 	String.prototype.capital = function(){
 		return this.replace(this.charAt(0),this.charAt(0).toUpperCase());
+	}
+	/**
+	 * 在字符串指定位置插值
+	 * @param  {int} index 位置
+	 * @param  {str} str 要插入的字符串
+	 * @return {str}       插值后的字符串
+	 */
+	String.prototype.insert = function(index,str){
+		return this.substring(0,index) + str + this.substring(index,this.length);
 	}
 	Object.defineProperty(Object.prototype,'each',{enumerable:false})
 	Object.defineProperty(Object.prototype,'extend',{enumerable:false})
