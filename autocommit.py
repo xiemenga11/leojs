@@ -20,7 +20,7 @@ while 1:
 	command = raw_input()
 	if command == 'exit':
 		break
-	if int(command) == 1:
+	if command == '1':
 		com = 'git remote -v'
 	else:
 		com = 'git push %s' %command
