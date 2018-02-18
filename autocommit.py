@@ -18,10 +18,13 @@ if res:
 print '^after--------------------------'
 while 1:
 	command = raw_input()
-	if int(command) == 1:
-		res = os.popen('git push origin').readlines()
-		if res:
-			for i in res:
-				print i
 	if command == 'exit':
 		break
+	if int(command) == 1:
+		com = 'git remote -v'
+	else:
+		com = 'git push %s' %command
+	res = os.popen(com).readlines()
+	if res:
+		for i in res:
+			print i
