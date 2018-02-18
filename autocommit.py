@@ -16,14 +16,20 @@ if res:
 	for i in res:
 		print i
 print '^after--------------------------'
+
+print '------- remote -v ---------------'
+res = os.popen('git remote -v').readlines()
+if res:
+	for i in res:
+		print i
+print '---------------------------------'
+
 while 1:
+	print('Please input the remote you want to push')
 	command = raw_input()
 	if command == 'exit':
 		break
-	if command == '1':
-		com = 'git remote -v'
-	else:
-		com = 'git push %s' %command
+	com = 'git push %s' %command
 	res = os.popen(com).readlines()
 	if res:
 		for i in res:
