@@ -264,6 +264,14 @@
 			}
 		}
 	}
+	/**
+	 * 获取用户选取的内容
+	 * @return {rangeObjec} 选取的内容；rangeObject
+	 */
+	l.getSelectContent = function(){
+		var selection = window.getSelection ? window.getSelection() : window.selection.createRange()
+		return selection.getRangeAt ? selection.getRangeAt(0) :selection;
+	}
 	l.each = function (obj,callback){
 		for(var i in obj){
 			var con = callback.call(obj[i],i);

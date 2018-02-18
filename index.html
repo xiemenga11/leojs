@@ -45,23 +45,19 @@
 <script src="js/leo.js"></script>
 <script src="js/leo.editor.js"></script>
 <script>
-	var edi = l._class('editor').editor()
-
-	var func = function(){
-	}
-	func.call(l.id('addImg'))
-	func.prototype = {
-		alt:function(){
-			alert(this.html())
-		}
-	}
-	l.PLUS({
-		func:function(){
-			return new func()
-		}
+	var e = l._class('editor').editor()
+	l.id('sub').click(function(){
+		console.dir(l.getSelectContent().startContainer.nodeName)
+		console.dir(l.getSelectContent())
 	})
-	new func().alt()
-	// l.id('addImg').func().alt()
+	l.id('bold').click(function(){
+		var select = l.getSelectContent();
+		// e.textArea.html(select.startContainer.)
+	})
+	l.id('addImg').click(function(){
+		e.textArea.html(e.textArea.html() + "<img src='http://image.zhangxinxu.com/image/blog/201711/Canvas_drawimage.jpg'>")
+	})
+
 </script>
 </body>
 </html>
