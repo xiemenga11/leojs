@@ -327,7 +327,18 @@
 			localStorage.clear();
 		}
 	}
-
+	//表单验证
+	l.check = {
+		mail:function(str){
+			return /^[^_][A-z0-9_]+@[A-z0-9]+\.[A-z]{2,}$/.test(str);
+		},
+		phoneNumber:function(str){
+			return /^1(3[0-9]|5[1235689]|8[056789])[0-9]{8}$/.test(str);
+		},
+		numberOnly:function(str){
+			return !(/[^0-9]/g.test(str));
+		}
+	}
 	// screen
 	l.scr = {
 		AH:screen.availHeight,

@@ -32,7 +32,7 @@
 	}
 	</style>
 </head>
-<body>
+<body style="padding:100px;">
 <div style="width:500px;margin:0 auto;">
 	<div class="editor"></div>
 	<button id="sub">sub</button>
@@ -45,19 +45,35 @@
 <script src="js/leo.js"></script>
 <script src="js/leo.editor.js"></script>
 <script>
-	var e = l._class('editor').editor()
+	// var e = l._class('editor').editor()
+	// l.id('sub').click(function(){
+	// 	console.dir(l.getSelectContent().startContainer.nodeName)
+	// 	console.dir(l.getSelectContent())
+	// 	var con = e.getContent().replace(/\[\[/g,'<');
+	// 		con = con.replace(/\]\]/g,'>');
+	// 	l._class('res').html(con)
+	// })
+	// l.id('bold').click(function(){
+	// 	var select = l.getSelectContent();
+	// 	// e.textArea.html(select.startContainer.)
+	// })
+	// l.id('addImg').click(function(){
+	// 	var select = l.getSelectContent()
+	// 	var nodeName = select.startContainer.nodeName.lower();
+	// 	if(nodeName == 'div'){
+	// 		select.startContainer.innerHTML = select.startContainer.innerHTML.insert(select.startOffset,'[[img src="http://image.zhangxinxu.com/image/blog/201711/Canvas_drawimage.jpg"]]')
+	// 	}else{
+	// 		select.startContainer.data = select.startContainer.data.insert(select.startOffset,'[[img src="http://image.zhangxinxu.com/image/blog/201711/Canvas_drawimage.jpg"]]')
+	// 	}
+	// })
+	var e = l.editor(l._class('editor'));
 	l.id('sub').click(function(){
-		console.dir(l.getSelectContent().startContainer.nodeName)
-		console.dir(l.getSelectContent())
+		console.log(l.getSelectContent().startContainer.nodeName)
+		console.log(e.getContent().length)
 	})
-	l.id('bold').click(function(){
-		var select = l.getSelectContent();
-		// e.textArea.html(select.startContainer.)
+	e.textArea.on('change',function(){
+		l._class('res').html(e.getContent())
 	})
-	l.id('addImg').click(function(){
-		e.textArea.html(e.textArea.html() + "<img src='http://image.zhangxinxu.com/image/blog/201711/Canvas_drawimage.jpg'>")
-	})
-
 </script>
 </body>
 </html>

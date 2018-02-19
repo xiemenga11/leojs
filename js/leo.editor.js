@@ -2,77 +2,76 @@
 //css require leojs/css/main.css
 
 (function(){
-	function fac(dom){
-		var Editor = function(){
-			this.init()
-		}
-		Editor.prototype = dom;
-		Editor.prototype.extend({
-			init:function(){
-				// this.dom.contentEditable = true;
-				// this.cls().add('flex');
-				this.pannel();
-				this.textArea();
-			},
-			pannel:function(){
-				var pan = l.create({
-					tag:'div',
-					css:{
-						width:'100%'
-					},
-					_class:'flex',
-					parent:this
-				})
-				var that = this;
-				this.mkBtn('添加图片',pan)
-				this.mkBtn('添加链接',pan)
-				this.mkBtn('加粗',pan)
-			},
-			textArea:function(){
-				this.textArea = l.create({
-					tag:'div',
-					_class:'bor pad mar-t',
-					style:{
-						width:"100%",
-						minHeight:this.offset('height') + "px"
-					},
-					attr:{
-						contentEditable:true
-					},
-					parent:this
-				})
-			},
-			getContent:function(){
-				return this.textArea.html()
-			},
-			mkBtn:function(content,parent){
-				return l.create({
-					tag:'div',
-					content:content,
-					_class:'bor pad-lr',
-					style:{
-						cursor:'default',
-						fontSize:'12px',
-						marginRight:'5px',
-						backgroundColor:'white'
-					},
-					parent:parent
-				}).hover(function(){
-					l(this).css({
-						backgroundColor:'#ddd'
-					})
-				}).out(function(){
-					l(this).css({
-						backgroundColor:'white'
-					})
-				})
-			}
-		})
-		return new Editor();
+	var Editor = function(dom){
+		this.dom = dom;
+		this.init()
 	}
-	l.PLUS({
-		editor:function(){
-			return fac(this);
+	Editor.prototype = {
+		init:function(){
+			// this.dom.contentEditable = true;
+			// this.cls().add('flex');
+			this.pannel();
+			this.textArea();
+		},
+		pannel:function(){
+			var pan = l.create({
+				tag:'div',
+				css:{
+					width:'100%'
+				},
+				_class:'flex',
+				parent:this.dom
+			})
+			var con = l.getSelectContent;
+			this.mkBtn('添加图片',pan).click(function(){
+				con().startContainer.data = con().startContainer.data.insert(con().startOffset,'[[img src="http://image.zhangxinxu.com/image/blog/201711/Canvas_drawimage.jpg"]]');
+			})
+			this.mkBtn('添加链接',pan)
+			this.mkBtn('加粗',pan).click(function(){
+				
+			})
+		},
+		textArea:function(){
+			this.textArea = l.create({
+				tag:'div',
+				_class:'bor pad mar-t',
+				style:{
+					width:"100%",
+					minHeight:this.dom.offset('height') + "px"
+				},
+				attr:{
+					contentEditable:true
+				},
+				parent:this.dom
+			})
+		},
+		getContent:function(){
+			return this.textArea.html().replace(/\[\[/g,"<").replace(/\]\]/g,'>');
+		},
+		mkBtn:function(content,parent){
+			return l.create({
+				tag:'button',
+				content:content,
+				_class:'bor pad-lr',
+				style:{
+					cursor:'default',
+					fontSize:'12px',
+					marginRight:'5px',
+					backgroundColor:'white'
+				},
+				parent:parent
+			}).hover(function(){
+				l(this).css({
+					backgroundColor:'#ddd'
+				})
+			}).out(function(){
+				l(this).css({
+					backgroundColor:'white'
+				})
+			})
 		}
-	})
+	}
+	window.l.editor = function(dom){
+		return new Editor(dom)
+	}
 }())
