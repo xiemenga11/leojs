@@ -290,7 +290,7 @@
 	 * @param  {object} file input['file'].files[0]的文件流
 	 * @return {str}      生成的文件路径
 	 */
-	l.fileUrl = function (file) {
+	l.getFileUrl = function (file) {
 	    var url = null;
 	    if (window.createObjectURL != undefined) {
 
@@ -312,6 +312,84 @@
 	    return url
 
 	};
+
+	/**
+	 * 压缩图片
+	 * @param  {obj} data 配置
+	 * data:{
+	 * 	file:dom.files[0] 要压缩的文件
+	 * 	preview:imgDom 预览的imgDom
+	 * 	maxWid:int 最大宽度
+	 * 	maxHei:int 最大高度
+	 * 	width:int 宽度，设置了宽度或高度maxWid和maxHei将失效
+	 * 	height:int 高度，设置了宽度或高度maxWid和maxHei将失效
+	 * 	type: str 要返回文件的格式
+	 * 	quality:0-1 图片的质量 仅type为jpeg时有效
+	 * }
+	 * @return {[type]}      [description]
+	 */
+	l.zipImg = function(data){
+		var can = l.create({
+			tag:'canvas'
+		});
+		var imgWid,imgHei,imgSize,imgName,imgType;
+		var context = can.dom.getContext('2d');
+		var img = new Image();
+		if(!/image/.test(data.file.type)){
+			throw ('只允许图片');
+			return;
+		}
+
+		imgName = data.file.name;
+		imgSize = data.file.size;
+		imgType = data.file.type.split('/')[1];
+		img.src = l.getFileUrl(data.file);
+
+		img.onload = function(){
+			var scale = 1;
+			if(data.maxWid && this.width * scale > data.maxWid){
+				scale = data.maxWid / this.width;
+			}
+			if(data.maxHei && this.height * scale > data.maxHei){
+				scale = data.maxHei / this.height;
+			}
+			imgWid = scale * this.width;
+			imgHei = scale * this.height;
+
+			if(data.width){
+				imgWid = data.width;
+				imgHei = this.height * data.width / this.width;
+			}
+			if(data.height){
+				imgHei = data.height;
+				imgWid = this.width * data.height / this.height;
+			}
+			if(data.height && data.width){
+				imgWid = data.width;
+				imgHei = data.height;
+			}
+
+			can.dom.width = imgWid;
+			can.dom.height = imgHei;
+
+			context.save();
+			context.beginPath();
+			context.drawImage(img,0,0,imgWid,imgHei)
+			context.closePath();
+			context.restore();
+			
+			if(data.preview){
+				data.preview.src = can.dom.toDataURL();
+			}
+			if(data.callback){
+				var type = data.type || imgType;
+				if(type == 'jpg') type = 'jpeg';
+				can.dom.toBlob(function(blob){
+					data.callback.call(blob);
+				},'image/'+type,data.quality || 0.8)
+			}
+		}
+	}
 	//localstorage
 	l.store = {
 		add:function(key,value){
@@ -385,6 +463,7 @@
 			for(var j in data.file){
 				if(data.file[j].length){
 					for(var k = 0; k < data.file[j].length; k++){
+						//form.append中的第一个参数就是php$_POST或$_FILES的键名
 						form.append(j+"[]",data.file[j][k]);
 					}
 				}else{

@@ -41,39 +41,35 @@
 	<input type="color" id="clo">
 	<div class="res"></div>
 </div>
+<input type="file" id="file"><input type="button" value='read' id="btn">
+
 <script src="js/vue.js"></script>
 <script src="js/leo.js"></script>
 <script src="js/leo.editor.js"></script>
 <script>
-	// var e = l._class('editor').editor()
-	// l.id('sub').click(function(){
-	// 	console.dir(l.getSelectContent().startContainer.nodeName)
-	// 	console.dir(l.getSelectContent())
-	// 	var con = e.getContent().replace(/\[\[/g,'<');
-	// 		con = con.replace(/\]\]/g,'>');
-	// 	l._class('res').html(con)
-	// })
-	// l.id('bold').click(function(){
-	// 	var select = l.getSelectContent();
-	// 	// e.textArea.html(select.startContainer.)
-	// })
-	// l.id('addImg').click(function(){
-	// 	var select = l.getSelectContent()
-	// 	var nodeName = select.startContainer.nodeName.lower();
-	// 	if(nodeName == 'div'){
-	// 		select.startContainer.innerHTML = select.startContainer.innerHTML.insert(select.startOffset,'[[img src="http://image.zhangxinxu.com/image/blog/201711/Canvas_drawimage.jpg"]]')
-	// 	}else{
-	// 		select.startContainer.data = select.startContainer.data.insert(select.startOffset,'[[img src="http://image.zhangxinxu.com/image/blog/201711/Canvas_drawimage.jpg"]]')
-	// 	}
-	// })
-	var e = l.editor(l._class('editor'));
-	l.id('sub').click(function(){
-		console.log(l.getSelectContent().startContainer.nodeName)
-		console.log(e.getContent().length)
+(function(){
+	var ReadFile = function(file){
+		this.file = file;
+	}
+	ReadFile.prototype = {
+		read:function(callback,type){
+			var type = type || 1;
+			var reader = new FileReader(this.file);
+			reader.onload = function(){
+				callback.call(this);
+			}
+
+		}
+	}
+	l.id('btn').click(function(){
+		console.dir(l.id('file').dom.files[0]);
+		var rf = new FileReader();
+		rf.readAsDataURL(l.id('file').dom.files[0])
+		rf.onload = function(){
+			
+		}	
 	})
-	e.textArea.on('change',function(){
-		l._class('res').html(e.getContent())
-	})
+}())
 </script>
 </body>
 </html>
