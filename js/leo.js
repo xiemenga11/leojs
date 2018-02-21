@@ -319,12 +319,13 @@
 	 * data:{
 	 * 	file:dom.files[0] 要压缩的文件
 	 * 	preview:imgDom 预览的imgDom
-	 * 	maxWid:int 最大宽度
-	 * 	maxHei:int 最大高度
+	 * 	maxWidth:int 最大宽度
+	 * 	maxHeight:int 最大高度
 	 * 	width:int 宽度，设置了宽度或高度maxWid和maxHei将失效
 	 * 	height:int 高度，设置了宽度或高度maxWid和maxHei将失效
-	 * 	type: str 要返回文件的格式
+	 * 	type: str 要返回文件的格式 ,默认为图片本身的格式
 	 * 	quality:0-1 图片的质量 仅type为jpeg时有效
+	 * 	callback:压缩完成时的回调函数 ，this 指向压缩后的文件 blob
 	 * }
 	 * @return {[type]}      [description]
 	 */
@@ -347,11 +348,11 @@
 
 		img.onload = function(){
 			var scale = 1;
-			if(data.maxWid && this.width * scale > data.maxWid){
-				scale = data.maxWid / this.width;
+			if(data.maxWidth && this.width * scale > data.maxWidth){
+				scale = data.maxWidth / this.width;
 			}
-			if(data.maxHei && this.height * scale > data.maxHei){
-				scale = data.maxHei / this.height;
+			if(data.maxHeight && this.height * scale > data.maxHeight){
+				scale = data.maxHeight / this.height;
 			}
 			imgWid = scale * this.width;
 			imgHei = scale * this.height;
