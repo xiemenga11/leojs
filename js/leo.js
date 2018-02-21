@@ -598,6 +598,28 @@
 	String.prototype.insert = function(index,str){
 		return this.substring(0,index) + str + this.substring(index,this.length);
 	}
+	//浏览器不支持canvas.toBlob时的代替方法
+	if (!HTMLCanvasElement.prototype.toBlob) {
+	  Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+	    value: function (callback, type, quality) {
+	      var canvas = this;
+	      setTimeout(function() {
+
+	        var binStr = atob( canvas.toDataURL(type, quality).split(',')[1] ),
+	            len = binStr.length,
+	            arr = new Uint8Array(len);
+
+	        for (var i = 0; i < len; i++ ) {
+	          arr[i] = binStr.charCodeAt(i);
+	        }
+
+	        callback( new Blob( [arr], {type: type || 'image/png'} ) );
+
+	      });
+	    }
+	  });
+	}
+
 	Object.defineProperty(Object.prototype,'each',{enumerable:false})
 	Object.defineProperty(Object.prototype,'extend',{enumerable:false})
 	Object.defineProperty(Array.prototype,'shuffle',{enumerable:false})
