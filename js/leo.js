@@ -133,6 +133,10 @@
 		},
 		remove:function(){
 			this.dom.parentNode.removeChild(this.dom)
+		},
+		clone:function(deep){
+			var deep = deep || false;
+			return l(this.dom.cloneNode(deep))
 		}
 	}
 	
@@ -551,6 +555,7 @@
 				this[i] = plus[i]
 			}
 		}
+		return this;
 	}
 	
 	Function.prototype.extend = function(parent,method){
