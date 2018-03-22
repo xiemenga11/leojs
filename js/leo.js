@@ -59,7 +59,8 @@
 		append:function(dom,i){
 			var dom = (dom instanceof _l) ? dom.dom : dom;
 			if(i){
-				var brother = l.isNumber(i) ? this.dom.children[i] : i;
+				var brother = l.isNumber(i) ? this.dom.children[i] : (i instanceof _l) ? i.dom : i;
+				// var brother = l.isNumber(i) ? this.dom.children[i] : i;
 				this.dom.insertBefore(dom,brother);
 			}else{
 				this.dom.appendChild(dom);
@@ -109,19 +110,15 @@
 			var ret;
 			var that = this;
 			if(css){
-				if(l.isObject(css)){
-					css.each(function(i){
-						that.dom.style[i] = this;
-					})
-					return this;
+				if(arguments.length == 1 && l.isObject(css)){
+					that.dom.style.extend(css)
+				}else if(arguments.length == 2 && l.isString(arguments[0]) && (l.isString(arguments[1]) || l.isNumber(arguments[1]))){
+					that.dom.style[arguments[0]] = arguments[1];
 				}else{
-					if(window.getComputedStyle){
-						ret = window.getComputedStyle(this.dom,null)[css];
-					}else{
-						ret = this.dom.currentStyle[css];
-					}
+					ret = window.getComputedStyle ? window.getComputedStyle(this.dom,null)[css] : this.dom .currentStyle[css];
 					return ret;
 				}
+				return this;
 			}
 		},
 		val:function(value){
@@ -137,6 +134,18 @@
 		clone:function(deep){
 			var deep = deep || false;
 			return l(this.dom.cloneNode(deep))
+		},
+		attr:function(attr){
+			if(arguments.length == 1){
+				if(l.isString(arguments[0])){
+					return this.dom[arguments[0]];
+				}else if(l.isObject(arguments[0])){
+					this.dom.extend(arguments[0])
+				}
+			}else if(arguments.length == 2 && l.isString(arguments[0]) && (l.isString(arguments[1]) || l.isNumber(arguments[1]))){
+				this.dom[arguments[0]] = arguments[1];
+			}
+			return this;
 		}
 	}
 	
