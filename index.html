@@ -6,61 +6,382 @@
 	<link rel="stylesheet" href="css/main.css">
 	<link rel="stylesheet" href="css/ui.main.css">
 	<style>
-	#editor{
-		width:500px;
-		height:300px;
-		border:1px solid red;
-		margin:0 auto;
+	*{
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+		background-color: #fff;
 	}
 	body{
-		background-color: #eee;
+		background-color: #ddd;
+		padding:20px;
 	}
-	*{
-		box-sizing:border-box;
-	}
-	.wrap{
-		padding:10px;
-		width:600px;
-		background-color: #fff;
-		margin:10px auto 0;
-	}
-	.app-btn,
-	.submit{
-		display: block;
-		padding:10px 20px;
-		width:100px;
-		background-color: #00ff7a;
-		color:white;
-		border-radius: 5px;
-		margin:0 auto;
-		border:none;
-	}
-	.app-btn{
-		display: inline-block;
-	}
-	.preview{
+	#table{
+		width:1000px;
+		height:600px;
 		/*border:1px solid red;*/
-		margin-bottom:10px;
+		margin:10px auto;
 	}
-	.file{
-		display: none;
+	.left{
+		width:200px;
+		height:600px;
 	}
-
-	.app2{
-		width:100%;
-		background-color: #fff;
+	.right{
+		width:800px;
+		height:600px;
+	}
+	.table{
+		height:400px;
+	}
+	.game-board{
+		height:200px;
+		width:600px;
+		overflow-y:scroll; 
+	}
+	.poker-card{
+		width:150px;
+	}
+	.btn{
+		margin-bottom: 10px;
+		margin-left: 10px;
+		width:100px;
+		padding:10px;
+		background-color: #007aff;
+		color:white;
+		border:none;
+		border-radius:5px;
+	}
+	.total-score,
+	.bet-score{
+		margin-left: 10px;
 	}
 	</style>
 </head>
 <body>
+<div id="table" class="clear">
+	<div class=" fl left bor-r">info</div>
+	<div class="fl right">
+		<div class="table bor-b flex x-around y-center">
 
+		</div>
+		<div class="flex">
+			<div class="game-board pad flex dir-bt">
+				
+			</div>
+			<div class="btn-box">
+				押分：<span class="bet-score">0</span><br>
+				总分：<span class="total-score"></span><br>
+				<button class="btn" id="bet">押分</button>
+				<button class="btn" id="clearBet">重押</button>
+				<button class="btn" id="start">开始</button>
+			</div>
+		</div>
+	</div>
+</div>
 <script src="js/vue.js"></script>
 <script src="js/leo.js"></script>
 <script src="js/leo.editor.js"></script>
 <script src="js/bmob-min.js"></script>
 <script src="js/bmob.js"></script>
 <script>
+// var a = '00333';
+// var reg = new RegExp('(0{3}3{2}|0{2}3{3})');
+// alert(reg.test(a));
+//同花顺，四条，葫芦，同花，顺子，三条，二对，一对，散牌
+(function(){
+	var pokerType = {
+		ths:100,
+		St:80,
+		hl:40,
+		th:20,
+		sz:10,
+		st:5,
+		ld:2,
+		yd:1,
+		sp:0
+	}
+	var gameCount = 1;
+	var isTh = false;//是否为同花
+	var isSz = false;//是否为顺子
+	var currentType = 'sp';//当前牌形
+	var typeName = '散牌';
+	var totalScore = 1000;//初始游戏分
+	var betScore = 0;//每局用分
+	var btnStr = ['开始','换牌','结算'];
+	var pokerArr = [];
+	var pokers = [];
+	var pokerCard = [];//牌的画面
+	var poker = [];//游戏开始后拿到的牌
+	var step = 1;//游戏步骤
+	/**
+	 * 获取一副新牌
+	 * @return {arr} 新的牌的数组，54张
+	 */
+	function getNewPoker(){
+		if(pokers.length == 0){
+			// pokers = ['p1','p2'];
+			var type = ['h','f','t','y'];
+			for(var j = 0; j < type.length; j++){
+				for(var i = 0; i < 13; i++){
+					pokers.push(type[j]+(i+1))
+				}
+			}
+			pokers.push('p1','p2');
+			pokers.shuffle();
+		}else{
+			pokers.shuffle();
+		}
+		return pokers.shuffle().slice(0);
+	}
+	/**
+	 * 初始化界面
+	 * @return {[type]} [description]
+	 */
+	function initPoker(){
+		pokerArr = getNewPoker();
+		for(var i = 0 ; i < 5; i++){
+			pokerCard.push(l.create({
+				tag:'img',
+				attr:{
+					src:'poker/bg.png'
+				},
+				_class:'poker-card',
+				parent:l._class('table')
+			}).data({index:i,status:0}))
+		}
 
+		l._class('total-score').html(totalScore)
+	}
+	initPoker();
+
+//游戏UI逻辑开始
+	/**
+	 * 换牌
+	 * @return {[type]} [description]
+	 */
+	function change(){
+		var src = '';
+		if(this.dataset['status'] == 0){
+			this.dataset['status'] = 1;
+			src = 'bg';
+		}else{
+			this.dataset['status'] = 0;
+			src = poker[this.dataset['index']];
+		}
+		this.src = 'poker/' + src + '.png';
+	}
+	/**
+	 * 开始游戏
+	 * @return {[type]} [description]
+	 */
+	function startGame(){
+		poker = pokerArr.splice(0,5);
+		pokerCard.each(function(i){
+			this.dom.src = 'poker/' + poker[i] + '.png';
+		})
+
+		pokerCard.each(function(){
+			this.click(change)
+		})
+	}
+
+	/**
+	 * 换牌步骤换牌
+	 * @return {[type]} [description]
+	 */
+	function changeCard(){
+
+		pokerCard.each(function(i){
+			if(this.data('status') == 1){
+				poker.splice(i,1,pokerArr.splice(0,1)[0])
+			}
+			this.dom.src = 'poker/' + poker[i] + '.png';
+		})
+
+		pokerCard.each(function(){
+			this.off('click',change)
+		})
+	}
+	/**
+	 * 重开一局
+	 * @return {[type]} [description]
+	 */
+	function initGame(){
+		pokerArr = getNewPoker();
+		poker = [];
+		currentType = 'sp';
+		typeName = '散牌';
+		isTh = false;
+		isSz = false;
+		pokerCard.each(function(){
+			this.dom.src = 'poker/bg.png'
+			this.data('status',0)
+		})
+	}
+
+//游戏UI逻辑结束
+
+//游戏逻辑开始
+	function sitiao(arr){
+		var max = arr.max();
+		var reg = new RegExp('(0{4}'+max+'{1}|0{1}'+max+'{4})');
+		return reg.test(arr.join(''));	
+	}
+	function hulu(arr){
+		var max = arr.max();
+		var reg = new RegExp('(0{3}'+max+'{2}|0{2}'+max+'{3})');
+		return reg.test(arr.join(''));
+	}
+	
+	function santiao(arr){
+		var max = arr.max();
+		var reg = new RegExp(arr[2]+'{3}');
+		return reg.test(arr.join(''));
+	}
+	function checkScore(){
+		var err = false;
+		if(betScore == 0){
+			err = '请押分';
+		}
+		if(totalScore == 0){
+			err = '分数不够';
+		}
+
+		if(err){
+			alert(err);
+			return false;
+		}
+		return true;
+	}
+	//分辨牌形
+	function readPoker(){
+		var num = [];
+		var flower = [];
+		// poker = ['t1','t2','t3','t5','t4'];//同花顺
+		// poker = ['t1','t12','t13','t11','t10'];//同花顺
+		// poker = ['t1','t3','h1','f1','y1'];//四条
+		// poker = ['t1','y3','h2','h1','f1'];//三条
+		// poker = ['t2','t4','f2','h4','y4'];//葫芦
+		// poker = ['f1','t5','h2','t3','t4'];//顺子
+		// poker = ['t1','t6','t10','t13','t5'];//同花
+		// poker = ['t5','f6','y3','h5','t6'];//两对
+		// poker = ['t5','h3','y4','f5','f2'];//一对
+		poker.each(function(i){
+			// alert(this)
+			flower.push(this.charAt(0))
+			num.push(this.slice(1));
+		})
+		num.sort(function(a,b){return a-b});
+		//判断是否为同花
+		isTh = (
+			flower[0] == flower[1] &&
+			flower[0] == flower[2] &&
+			flower[0] == flower[3] &&
+			flower[0] == flower[4]
+			);
+		//判断是否为顺子
+		var min = num.min();
+		num.each(function(i){
+			num[i] -= min;
+		})
+
+		isSz = (num.join('') == '01234') || (num.join('') == '09101112');
+		// console.log(num)
+		var combo = 0;
+		var dz = 0;
+		for(var i = 1; i < 5; i++){
+			if(num[i-1] == num[i]){
+				combo++;
+			}
+		}
+		//combo == 3 四条
+		//combo == 2 三条
+		console.log(combo)
+		console.log(dz)
+		if(isTh && isSz){
+			currentType = 'ths';
+			typeName = '同花顺';
+		}else if(combo == 3 && sitiao(num)){
+			currentType = 'St';
+			typeName = '四条';
+		}else if(hulu(num)){
+			currentType = 'hl';
+			typeName = '葫芦';
+		}else if(isTh){
+			currentType = 'th';
+			typeName = '同花';
+		}else if(isSz){
+			currentType = 'sz';
+			typeName = '顺子';
+		}else if(santiao(num)){
+			currentType = 'st';
+			typeName = '三条';
+		}else if(combo == 2){
+			currentType = 'ld';
+			typeName = '两对';
+		}else if(combo == 1){
+			currentType = 'yd';
+			typeName = '一对';
+		}
+	}
+
+	//得分逻辑
+	var gameBoard = l._class('game-board');
+	function getScore(){
+		var winScore = pokerType[currentType] * betScore;
+		totalScore += winScore;
+		l._class('total-score').html(totalScore);
+
+		var color = currentType == 'sp' ? 'red' : 'green';
+		var str = currentType == 'sp' ? '输了' : '赢得';
+		var wrap = l.create({
+			tag:'div',
+			content:'<div>第<span style="color:#007aff;">'+gameCount+'</span>把:'+str+'<span style="color:'+color+';">'+(winScore|| betScore)+'</span></div>',
+		})
+		gameBoard.append(wrap,0);
+
+		gameCount++;
+	}
+
+
+	// 运行游戏
+	function run(){	
+		switch(step){
+			case 1:
+				if(!checkScore()) return;
+				totalScore -= betScore;
+				l._class('total-score').html(totalScore);
+				startGame();
+				break;
+			case 2:
+				changeCard();
+				readPoker();
+				break;
+			case 3:
+				getScore();
+				initGame();
+				break;
+		}
+
+		step = step < 3 ? step + 1 : 1;
+		this.innerHTML = btnStr[step - 1];		
+	}
+//游戏逻辑结束
+	l.id('bet').click(function(){
+		if(step != 1) return;
+		if(betScore < totalScore){
+			betScore+=10;
+			l._class('bet-score').html(betScore);
+		}else{
+			alert('分数不够');
+		}
+	})
+	l.id('clearBet').click(function(){
+		betScore = 0;
+		l._class('bet-score').dom.innerHTML = 0;
+	})
+	l.id('start').click(run)
+}())
 </script>
 </body>
 </html>

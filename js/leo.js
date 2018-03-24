@@ -44,8 +44,8 @@
 	_l.prototype = {
 		data:function(){
 			if(arguments.length == 1 && l.isObject(arguments[0])){
-				for(var i in arguments){
-					this.dom.dataset[i] = arguments[i];
+				for(var i in arguments[0]){
+					this.dom.dataset[i] = arguments[0][i];
 				}
 			}else if(arguments.length > 1){
 				this.dom.dataset[arguments[0]] = arguments[1];
@@ -59,7 +59,7 @@
 		},
 		append:function(dom,i){
 			var dom = (dom instanceof _l) ? dom.dom : dom;
-			if(i){
+			if(i || i === 0){
 				var brother = l.isNumber(i) ? this.dom.children[i] : (i instanceof _l) ? i.dom : i;
 				// var brother = l.isNumber(i) ? this.dom.children[i] : i;
 				this.dom.insertBefore(dom,brother);
@@ -610,6 +610,22 @@
 	        return this;
 	    };
 	}
+	Array.prototype.min = function(){
+		if(this.length === 0) return false;
+		var m = this[0];
+		for(var i = 0, len = this.length; i < len ;i++){
+			m = m < Number(this[i]) ? m : this[i];
+		}
+		return m;
+	}
+	Array.prototype.max = function(){
+		if(this.length === 0) return false;
+		var m = this[0];
+		for(var i = 0, len = this.length; i < len ;i++){
+			m = m < this[i] ? this[i] : m;
+		}
+		return m;
+	}
 	String.prototype.toJson = function(){
 		return l.strToJson(this);
 	}
@@ -656,4 +672,6 @@
 	Object.defineProperty(Object.prototype,'each',{enumerable:false})
 	Object.defineProperty(Object.prototype,'extend',{enumerable:false})
 	Object.defineProperty(Array.prototype,'shuffle',{enumerable:false})
+	Object.defineProperty(Array.prototype,'min',{enumerable:false})
+	Object.defineProperty(Array.prototype,'max',{enumerable:false})
 }(window,document))
