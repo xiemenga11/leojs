@@ -26,10 +26,11 @@
 			this.obj.className = this.cls.join(" ")
 		},
 		toggle:function(cls,condition){
-			if(this.contains(cls)){
-				this.remove(cls)
-			}else{
+			var con = condition && true;
+			if(this.contains(cls) && con){
 				this.add(cls)
+			}else{
+				this.remove(cls)
 			}
 		}
 	}
@@ -386,15 +387,33 @@
 			can.dom.width = imgWid;
 			can.dom.height = imgHei;
 
-			context.save();
-			context.beginPath();
-			context.drawImage(img,0,0,imgWid,imgHei)
-			context.closePath();
-			context.restore();
 			
+			context.drawImage(img,0,0,imgWid,imgHei)
+			
+			//预览
 			if(data.preview){
-				data.preview.src = can.dom.toDataURL();
+				// alert(data.preview.tagName.toLowerCase())
+				if(data.preview.tagName.toLowerCase() == 'img'){
+					data.preview.src = can.dom.toDataURL();
+					// console.log('img')
+				}else{
+					var size;
+					if(imgHei < imgWid){
+						size = '100% auto';
+					}else if(imgHei > imgWid){
+						size = 'auto 100%';
+					}else{
+						size = '100% 100%';
+					}
+					l(data.preview).css({
+						backgroundSize:size,
+						backgroundPosition:'center',
+						backgroundRepeat:'no-repeat'
+					})
+					data.preview.style.backgroundImage = 'url('+can.dom.toDataURL()+')';
+				}
 			}
+			//上传
 			if(data.callback){
 				var type = data.type || imgType;
 				if(type == 'jpg') type = 'jpeg';
