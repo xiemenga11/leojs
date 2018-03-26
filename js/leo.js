@@ -254,6 +254,11 @@
 		}
 		return new _l(_dom);
 	}
+	l.createText = function(str,parent){
+		var t = document.createTextNode(str);
+		if(parent) l(parent).append(t);
+		return t;
+	}
 	l.require = function(src,callback){
 		var _req = l.create({
 			tag:'script',

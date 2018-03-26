@@ -59,7 +59,20 @@
 </head>
 <body>
 <div id="table" class="clear">
-	<div class=" fl left bor-r">info</div>
+	<div class=" fl left bor-r">
+		<h3>BONUS</h3>
+		<div><span>同花顺：</span><span class="bonus-i ths" data-type="ths"></span></div>
+		<div><span>四　条：</span><span class="bonus-i St" data-type="St"></span></div>
+		<div><span>葫　芦：</span><span class="bonus-i hl" data-type="hl"></span></div>
+		<div><span>同　花：</span><span class="bonus-i th" data-type="th"></span></div>
+		<div><span>顺　子：</span><span class="bonus-i sz" data-type="sz"></span></div>
+		<h3>战绩</h3>
+		<div><span>赢场数：</span><span class="bonus-i winCount"></span></div>
+		<div><span>总场数：</span><span class="bonus-i totalCount"></span></div>
+		<div><span>胜　率：</span><span class="bonus-i winPercent"></span></div>
+		<div><span>总赢分：</span><span class="bonus-i winTotalScore"></span></div>
+		<div><span>总输分：</span><span class="bonus-i lostTotalScore"></span></div>
+	</div>
 	<div class="fl right">
 		<div class="table bor-b flex x-around y-center">
 
@@ -89,6 +102,24 @@
 // alert(reg.test(a));
 //同花顺，四条，葫芦，同花，顺子，三条，二对，一对，散牌
 (function(){
+	//需要储存的数据
+	var	bonus = l.store.get('bonus') ? l.store.get('bonus').toJson():{
+		ths:0,
+		St:0,
+		hl:0,
+		th:0,
+		sz:0
+	}
+
+	var totalScore = l.store.get('totalScore') ? ~~l.store.get('totalScore') : 1000;//初始游戏分
+
+	var winCount = l.store.get('winCount') ? ~~l.store.get('winCount') : 0;
+	var totalCount = l.store.get('totalCount') ? ~~l.store.get('totalCount') : 0;
+	var winTotalScore = l.store.get('winTotalScore') ? ~~l.store.get('winTotalScore') : 0;
+	var lostTotalScore = l.store.get('lostTotalScore') ? ~~l.store.get('lostTotalScore') : 0;
+
+
+	//一般的游戏数据
 	var pokerType = {
 		ths:100,
 		St:80,
@@ -105,12 +136,11 @@
 	var isSz = false;//是否为顺子
 	var currentType = 'sp';//当前牌形
 	var typeName = '散牌';
-	var totalScore = 1000;//初始游戏分
 	var betScore = 0;//每局用分
 	var btnStr = ['开始','换牌','结算'];
 	var pokerArr = [];
 	var pokers = [];
-	var pokerCard = [];//牌的画面
+	var pokerCard = [];//牌的画面,175行有绑定事件
 	var poker = [];//游戏开始后拿到的牌
 	var step = 1;//游戏步骤
 	/**
@@ -126,12 +156,35 @@
 					pokers.push(type[j]+(i+1))
 				}
 			}
-			pokers.push('p1','p2');
+			// pokers.push('p1','p2');//暂时不添加大小王
 			pokers.shuffle();
 		}else{
 			pokers.shuffle();
 		}
 		return pokers.shuffle().slice(0);
+	}
+	//数据渲染
+	function dataRender(){
+		bonus.each(function(i){
+			l._class(i).html(this);
+		})
+
+		l._class('total-score').html(totalScore);
+		l._class('totalCount').html(totalCount);
+		l._class('winCount').html(winCount);
+
+		var per = totalCount == 0 ? 0 : winCount / totalCount;
+		l._class('winPercent').html((per * 100).toFixed(2) + "%");
+		l._class('winTotalScore').html(winTotalScore);
+		l._class('lostTotalScore').html(lostTotalScore);
+		
+		//储存数据
+		l.store.add('bonus',l.jsonToStr(bonus));
+		l.store.add('totalScore',totalScore);
+		l.store.add('totalCount',totalCount);
+		l.store.add('winCount',winCount);
+		l.store.add('winTotalScore',winTotalScore);
+		l.store.add('lostTotalScore',lostTotalScore);
 	}
 	/**
 	 * 初始化界面
@@ -150,9 +203,10 @@
 			}).data({index:i,status:0}))
 		}
 
-		l._class('total-score').html(totalScore)
+		dataRender();
 	}
 	initPoker();
+
 
 //游戏UI逻辑开始
 	/**
@@ -160,6 +214,7 @@
 	 * @return {[type]} [description]
 	 */
 	function change(){
+		if(step != 2) return;
 		var src = '';
 		if(this.dataset['status'] == 0){
 			this.dataset['status'] = 1;
@@ -170,6 +225,12 @@
 		}
 		this.src = 'poker/' + src + '.png';
 	}
+	
+	//为pokerCard的每一个元素绑定事件
+	pokerCard.each(function(){
+		this.on('click',change)
+	})
+
 	/**
 	 * 开始游戏
 	 * @return {[type]} [description]
@@ -178,10 +239,6 @@
 		poker = pokerArr.splice(0,5);
 		pokerCard.each(function(i){
 			this.dom.src = 'poker/' + poker[i] + '.png';
-		})
-
-		pokerCard.each(function(){
-			this.click(change)
 		})
 	}
 
@@ -196,10 +253,6 @@
 				poker.splice(i,1,pokerArr.splice(0,1)[0])
 			}
 			this.dom.src = 'poker/' + poker[i] + '.png';
-		})
-
-		pokerCard.each(function(){
-			this.off('click',change)
 		})
 	}
 	/**
@@ -243,7 +296,7 @@
 		if(betScore == 0){
 			err = '请押分';
 		}
-		if(totalScore == 0){
+		if(totalScore <= 0){
 			err = '分数不够';
 		}
 
@@ -336,11 +389,15 @@
 		var str = currentType == 'sp' ? '输了' : '赢得';
 		var wrap = l.create({
 			tag:'div',
-			content:'<div>第<span style="color:#007aff;">'+gameCount+'</span>把:'+str+'<span style="color:'+color+';">'+(winScore|| betScore)+'</span></div>',
+			content:'<div>第<span style="color:#007aff;">'+gameCount+'</span>把:<span style="color:#007aff;padding:0 10px;"> '+typeName+' </span>'+str+'<span style="color:'+color+';">'+(winScore|| betScore)+'</span></div>',
 		})
 		gameBoard.append(wrap,0);
 
 		gameCount++;
+
+		totalCount++;
+		(currentType != 'sp') && winCount++;
+		currentType == 'sp' ? lostTotalScore += betScore : winTotalScore += winScore - betScore;
 	}
 
 
@@ -359,15 +416,16 @@
 				break;
 			case 3:
 				getScore();
+				dataRender();
 				initGame();
 				break;
 		}
 
 		step = step < 3 ? step + 1 : 1;
-		this.innerHTML = btnStr[step - 1];		
+		l.id('start').dom.innerHTML = btnStr[step - 1];		
 	}
-//游戏逻辑结束
-	l.id('bet').click(function(){
+	//押分
+	function addBetScore(){
 		if(step != 1) return;
 		if(betScore < totalScore){
 			betScore+=10;
@@ -375,12 +433,40 @@
 		}else{
 			alert('分数不够');
 		}
-	})
-	l.id('clearBet').click(function(){
+	}
+	//清除押的份
+	function clearBetScore(){
 		betScore = 0;
 		l._class('bet-score').dom.innerHTML = 0;
-	})
+	}
+//游戏逻辑结束
+	l.id('bet').click(addBetScore)
+	l.id('clearBet').click(clearBetScore)
 	l.id('start').click(run)
+
+	l().on('keyup',function(ev){
+		l.id('start').dom.blur();
+		l.id('bet').dom.blur();
+		l.id('clearBet').dom.blur();
+
+		var e = ev || event;
+		// alert(e.keyCode)
+		switch(e.keyCode){
+			case 13:
+				run();
+				break;
+			case 32:
+				addBetScore();
+				break;
+			case 67:
+				clearBetScore();
+				break;
+		}
+
+		if(e.keyCode > 48 && e.keyCode < 54){
+			change.call(pokerCard[e.keyCode-49].dom)
+		}
+	})
 }())
 </script>
 </body>
