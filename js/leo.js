@@ -272,6 +272,20 @@
 		}
 		return _req;
 	}
+	/**
+	 * 查找数组中重复了的元素
+	 * @param  {arr} arr 要查询的数组
+	 * @return {arr}     数组中重复了的元素数组
+	 */
+	l.findRepeat = function(arr){
+		var re = [];
+		for(var i = 0; i < arr.length; i++){
+			for(var j = i + 1; j < arr.length; j++){
+				arr[i] == arr[j] && re.push(arr[i])
+			}
+		}
+		return re;
+	}
 	l.times = function (times,callback){
 		for(var i = 0; i < times; i++){
 			var ret = callback.call(i);
@@ -631,6 +645,7 @@
 		}
 		return m;
 	}
+	Array.prototype.findRepeat = function(){return l.findRepeat(this);}
 	String.prototype.toJson = function(){
 		return l.strToJson(this);
 	}
@@ -679,4 +694,5 @@
 	Object.defineProperty(Array.prototype,'shuffle',{enumerable:false})
 	Object.defineProperty(Array.prototype,'min',{enumerable:false})
 	Object.defineProperty(Array.prototype,'max',{enumerable:false})
+	Object.defineProperty(Array.prototype,'findRepeat',{enumerable:false})
 }(window,document))

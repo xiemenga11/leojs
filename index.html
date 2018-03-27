@@ -55,6 +55,18 @@
 	.bet-score{
 		margin-left: 10px;
 	}
+	.mask{
+		position: fixed;
+		height:100%;
+		width:100%;
+		text-align: center;
+		line-height: 600px;
+		background-color: #000;
+		color:#fff;
+		font-size: 20px;
+		top:0;
+		left:0;
+	}
 	</style>
 </head>
 <body>
@@ -91,12 +103,45 @@
 		</div>
 	</div>
 </div>
+
+<div class="mask">正在加载，请稍候......</div>
 <script src="js/vue.js"></script>
 <script src="js/leo.js"></script>
 <script src="js/leo.editor.js"></script>
 <script src="js/bmob-min.js"></script>
 <script src="js/bmob.js"></script>
 <script>
+function loadImg(){
+	var imgs = [];
+	var a = new Image();
+	a.src = 'poker/bg.png';
+	imgs.push(a);
+	var b = new Image();
+	b.src = 'poker/p1.png';
+	imgs.push(b);
+	var c = new Image();
+	c.src = 'poker/p2.png';
+	imgs.push(c);
+	for(var j = 0; j < 4; j++){
+		for(var i = 1; i < 13; i++){
+			var p = ['f','h','t','y'][j] + i;
+			var img = new Image();
+			img.src = 'poker/'+p+'.png';
+			imgs.push(img);
+		}
+	}
+
+	var suc = 0;
+	imgs.each(function(i){
+		this.onload = function(){
+			suc++;
+			if(suc>=51){
+				l._class('mask').css('display','none');
+			}
+		}
+	})
+}
+loadImg();
 // var a = '00333';
 // var reg = new RegExp('(0{3}3{2}|0{2}3{3})');
 // alert(reg.test(a));
@@ -349,8 +394,6 @@
 		}
 		//combo == 3 四条
 		//combo == 2 三条
-		console.log(combo)
-		console.log(dz)
 		if(isTh && isSz){
 			currentType = 'ths';
 			typeName = '同花顺';
@@ -372,7 +415,7 @@
 		}else if(combo == 2){
 			currentType = 'ld';
 			typeName = '两对';
-		}else if(combo == 1){
+		}else if(combo == 1 && ((num.findRepeat()[0]+~~min) >= 10 || (num.findRepeat()[0]+~~min) == 1)){
 			currentType = 'yd';
 			typeName = '一对';
 		}
@@ -383,13 +426,25 @@
 	function getScore(){
 		var winScore = pokerType[currentType] * betScore;
 		totalScore += winScore;
+		
+
+		//判断是否能获得Bonus的分
+		var bonusInfo = '';
+		var bonusScore = 0;
+		if(currentType in bonus){
+			bonusInfo = '<div><span style="color:#007aff">赢得 </span> <span style="color:orange; font-size:20px;"> ' + typeName + ' 的皮子</span> <span style="color:green;"> ' + bonus[currentType] + ' </span></div>';
+			bonusScore = bonus[currentType];
+			bonus[currentType] = 0;
+			totalScore += bonusScore;
+		}
+
 		l._class('total-score').html(totalScore);
 
 		var color = currentType == 'sp' ? 'red' : 'green';
 		var str = currentType == 'sp' ? '输了' : '赢得';
 		var wrap = l.create({
 			tag:'div',
-			content:'<div>第<span style="color:#007aff;">'+gameCount+'</span>把:<span style="color:#007aff;padding:0 10px;"> '+typeName+' </span>'+str+'<span style="color:'+color+';">'+(winScore|| betScore)+'</span></div>',
+			content:'<div>第<span style="color:#007aff;">'+gameCount+'</span>把:<span style="color:#007aff;padding:0 10px;"> '+typeName+' </span>'+str+'<span style="color:'+color+';">'+(winScore|| betScore)+'</span></div>' + bonusInfo,
 		})
 		gameBoard.append(wrap,0);
 
@@ -398,6 +453,13 @@
 		totalCount++;
 		(currentType != 'sp') && winCount++;
 		currentType == 'sp' ? lostTotalScore += betScore : winTotalScore += winScore - betScore;
+		winTotalScore += bonusScore;
+
+		//每局结束长皮子
+		//每局每个皮子随机长1－3分
+		bonus.each(function(i){
+			bonus[i] += Math.round(Math.random() * 2) + 1;
+		})
 	}
 
 
@@ -468,6 +530,7 @@
 		}
 	})
 }())
+
 </script>
 </body>
 </html>
