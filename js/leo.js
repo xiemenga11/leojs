@@ -646,6 +646,13 @@
 		return m;
 	}
 	Array.prototype.findRepeat = function(){return l.findRepeat(this);}
+	//检查数组中是否有指定的元素
+	Array.prototype.has = function(item){
+		for(var i = 0,len = this.length; i < len; i++){
+			if(this[i] === item) return true;
+		}
+		return false;
+	}
 	String.prototype.toJson = function(){
 		return l.strToJson(this);
 	}
@@ -695,4 +702,5 @@
 	Object.defineProperty(Array.prototype,'min',{enumerable:false})
 	Object.defineProperty(Array.prototype,'max',{enumerable:false})
 	Object.defineProperty(Array.prototype,'findRepeat',{enumerable:false})
+	Object.defineProperty(Array.prototype,'has',{enumerable:false})
 }(window,document))

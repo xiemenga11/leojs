@@ -73,6 +73,7 @@
 <div id="table" class="clear">
 	<div class=" fl left bor-r">
 		<h3>BONUS</h3>
+		<div><span>五　条：</span><span class="bonus-i wt" data-type="wt"></span></div>
 		<div><span>同花顺：</span><span class="bonus-i ths" data-type="ths"></span></div>
 		<div><span>四　条：</span><span class="bonus-i St" data-type="St"></span></div>
 		<div><span>葫　芦：</span><span class="bonus-i hl" data-type="hl"></span></div>
@@ -111,19 +112,20 @@
 <script src="js/bmob-min.js"></script>
 <script src="js/bmob.js"></script>
 <script>
+//缓存图片
 function loadImg(){
 	var imgs = [];
 	var a = new Image();
 	a.src = 'poker/bg.png';
 	imgs.push(a);
 	var b = new Image();
-	b.src = 'poker/p1.png';
+	b.src = 'poker/z14.png';
 	imgs.push(b);
 	var c = new Image();
-	c.src = 'poker/p2.png';
+	c.src = 'poker/z15.png';
 	imgs.push(c);
 	for(var j = 0; j < 4; j++){
-		for(var i = 1; i < 13; i++){
+		for(var i = 1; i < 14; i++){
 			var p = ['f','h','t','y'][j] + i;
 			var img = new Image();
 			img.src = 'poker/'+p+'.png';
@@ -148,7 +150,9 @@ loadImg();
 //同花顺，四条，葫芦，同花，顺子，三条，二对，一对，散牌
 (function(){
 	//需要储存的数据
+	//皮子
 	var	bonus = l.store.get('bonus') ? l.store.get('bonus').toJson():{
+		wt:0,
 		ths:0,
 		St:0,
 		hl:0,
@@ -158,26 +162,27 @@ loadImg();
 
 	var totalScore = l.store.get('totalScore') ? ~~l.store.get('totalScore') : 1000;//初始游戏分
 
-	var winCount = l.store.get('winCount') ? ~~l.store.get('winCount') : 0;
-	var totalCount = l.store.get('totalCount') ? ~~l.store.get('totalCount') : 0;
-	var winTotalScore = l.store.get('winTotalScore') ? ~~l.store.get('winTotalScore') : 0;
-	var lostTotalScore = l.store.get('lostTotalScore') ? ~~l.store.get('lostTotalScore') : 0;
+	var winCount = l.store.get('winCount') ? ~~l.store.get('winCount') : 0;//赢的局数
+	var totalCount = l.store.get('totalCount') ? ~~l.store.get('totalCount') : 0;//总局数
+	var winTotalScore = l.store.get('winTotalScore') ? ~~l.store.get('winTotalScore') : 0;//总共赢过多少分
+	var lostTotalScore = l.store.get('lostTotalScore') ? ~~l.store.get('lostTotalScore') : 0;//总共输过多少分
 
 
 	//一般的游戏数据
 	var pokerType = {
-		ths:100,
-		St:80,
-		hl:40,
-		th:20,
-		sz:10,
-		st:5,
+		wt:500,
+		//还差一个同花大顺
+		ths:140,
+		St:60,
+		hl:12,
+		th:8,
+		sz:6,
+		st:3,
 		ld:2,
 		yd:1,
 		sp:0
 	}
 	var gameCount = 1;
-	var isTh = false;//是否为同花
 	var isSz = false;//是否为顺子
 	var currentType = 'sp';//当前牌形
 	var typeName = '散牌';
@@ -309,7 +314,6 @@ loadImg();
 		poker = [];
 		currentType = 'sp';
 		typeName = '散牌';
-		isTh = false;
 		isSz = false;
 		pokerCard.each(function(){
 			this.dom.src = 'poker/bg.png'
@@ -320,6 +324,29 @@ loadImg();
 //游戏UI逻辑结束
 
 //游戏逻辑开始
+	function wutiao(arr,min){
+		var arr = arr.slice(0);
+		arr.each(function(i){
+			arr[i] += ~~min;
+		});
+		var reg = new RegExp("("+min+"{4}(14|15)|"+min+"{3}1415)");
+		return reg.test(arr.join(''));
+	}
+	function isTh(arr){
+		var f = arr.sort()[0];
+		var reg = new RegExp("("+f+"{5}|"+f+"{4}z|"+f+"{3}z{2})");
+		return reg.test(arr.join(''));
+	}
+
+	//暂时选定判断顺子
+	// function isSz2(arr,min){
+	// 	var x = arr.max() + min;
+		
+	// 	var reg = /(01234|09101112|0234|0134|0124|0123|0101112|091112|091012|091011)/;
+	// 	if((arr.join('') == '01234') || (arr.join('') == '09101112')) return true;
+	// 	if(reg.test(arr.join('')) && (x == 14 || x == 15)) return true;
+	// 	return false;
+	// }
 	function sitiao(arr){
 		var max = arr.max();
 		var reg = new RegExp('(0{4}'+max+'{1}|0{1}'+max+'{4})');
@@ -355,13 +382,13 @@ loadImg();
 	function readPoker(){
 		var num = [];
 		var flower = [];
-		// poker = ['t1','t2','t3','t5','t4'];//同花顺
+		// poker = ['y1','y2','z3','y5','y4'];//同花顺
 		// poker = ['t1','t12','t13','t11','t10'];//同花顺
-		// poker = ['t1','t3','h1','f1','y1'];//四条
+		// poker = ['t4','z14','h4','f4','y4'];//四条
 		// poker = ['t1','y3','h2','h1','f1'];//三条
 		// poker = ['t2','t4','f2','h4','y4'];//葫芦
-		// poker = ['f1','t5','h2','t3','t4'];//顺子
-		// poker = ['t1','t6','t10','t13','t5'];//同花
+		// poker = ['z14','t5','h2','t3','t4'];//顺子
+		// poker = ['t1','t6','z15','t13','z14'];//同花
 		// poker = ['t5','f6','y3','h5','t6'];//两对
 		// poker = ['t5','h3','y4','f5','f2'];//一对
 		poker.each(function(i){
@@ -370,13 +397,9 @@ loadImg();
 			num.push(this.slice(1));
 		})
 		num.sort(function(a,b){return a-b});
-		//判断是否为同花
-		isTh = (
-			flower[0] == flower[1] &&
-			flower[0] == flower[2] &&
-			flower[0] == flower[3] &&
-			flower[0] == flower[4]
-			);
+
+
+		
 		//判断是否为顺子
 		var min = num.min();
 		num.each(function(i){
@@ -384,6 +407,7 @@ loadImg();
 		})
 
 		isSz = (num.join('') == '01234') || (num.join('') == '09101112');
+
 		// console.log(num)
 		var combo = 0;
 		var dz = 0;
@@ -392,9 +416,10 @@ loadImg();
 				combo++;
 			}
 		}
-		//combo == 3 四条
-		//combo == 2 三条
-		if(isTh && isSz){
+		if(wutiao(num,min)){
+			currentType = 'wt';
+			typeName = '五条';
+		}else if(isTh(flower) && isSz){
 			currentType = 'ths';
 			typeName = '同花顺';
 		}else if(combo == 3 && sitiao(num)){
@@ -403,7 +428,7 @@ loadImg();
 		}else if(hulu(num)){
 			currentType = 'hl';
 			typeName = '葫芦';
-		}else if(isTh){
+		}else if(isTh(flower)){
 			currentType = 'th';
 			typeName = '同花';
 		}else if(isSz){
@@ -468,7 +493,14 @@ loadImg();
 		switch(step){
 			case 1:
 				if(!checkScore()) return;
-				totalScore -= betScore;
+
+				//总分小于押的分数时，直接减总分
+				if(betScore > totalScore){
+					betScore = totalScore;
+					l._class('bet-score').html(betScore);	
+				} 
+
+				totalScore -= betScore ;
 				l._class('total-score').html(totalScore);
 				startGame();
 				break;
@@ -490,7 +522,7 @@ loadImg();
 	function addBetScore(){
 		if(step != 1) return;
 		if(betScore < totalScore){
-			betScore+=10;
+			(betScore < 100) && (betScore+=10);
 			l._class('bet-score').html(betScore);
 		}else{
 			alert('分数不够');

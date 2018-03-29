@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>test</title>
+	<style>
+	body{
+		background-color: #eee;
+	}
+	.wrap{
+		width:200px;
+		background-color: #fff;
+		float: left;
+		margin-left: 10px;
+	}
+	.wrap img{
+		width:180px;
+		height:180px;
+		margin:10px;
+	}
+	.wrap input{
+		width:180px;
+		margin:10px;
+	}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<div class="wrap"v-for="i,index in vote">
+			<img :src="i['bg']==false ? 'poker/bg.png' : getUrl(i['bg'])" :data-index="index"  @click="change"  alt="">
+			<input type="text" :value="i['name']" v-model="i['name']">
+			<input type="text" :value="i['des']" v-model="i['des']">
+		</div>
+		<input @change="cha" type="file" style="display:none;" class="file">
+		<button @click='addVoteItem'>添加</button>
+		<button @click='show'>显示数据</button>
+	</div>
+
+	<input type="file" id="file">
+	<input type="button" value="upload" id="upload">
+<script src="js/leo.js"></script>
+<script src="js/vue.js"></script>
+<script src="js/bmob-min.js"></script>
+<script>
+	Bmob.initialize('96bd99705c685df49da85583d42d50ce','51690b00757c051873fc8e712a78ecb5');
+
+	l.id('upload').click(function(){
+		l.zipImg({
+			file:l.id('file').dom.files[0],
+			width:100,
+			callback:function(){
+				console.dir(this)
+				var fi = new Bmob.File('leo.png',this)
+				fi.save().then(function(){
+					alert('yes')
+				},function(err){
+					console.log(err)
+					alert('no')
+				})
+			}
+		})
+	})
+	var leo = new Vue({
+		el:'#app',
+		data:{
+			vote:[{bg:false,name:'',des:''}]
+		},
+		methods:{
+			addVoteItem:function(){
+				this.vote.push({bg:false,name:'',des:''})
+			},
+			getUrl:function(file){
+				return l.getFileUrl(file);
+			},
+			show:function(){
+				alert(l.jsonToStr(this.vote))
+				console.log(this.vote)
+			},
+			change:function(ev){
+				var ev = ev || event;
+				var tar = ev.target || ev.scrElement;
+
+
+				var file = l._class('file').dom;
+				file.click();
+				file.dataset['curIndex'] = tar.dataset['index'];
+
+			},
+			cha:function(ev){
+				var ev = ev || event;
+				var tar = ev.target || ev.scrElement;
+
+				this.vote[tar.dataset['curIndex']].bg = tar.files[0];
+			}
+		}
+	})
+</script>
+</body>
+</html>
