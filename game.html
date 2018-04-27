@@ -1,0 +1,292 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>game</title>
+	<link rel="stylesheet" href="css/main.css">
+	<style>
+		*{
+			padding:0;
+			margin:0;
+			user-select:none;
+		}
+		.map,
+		#can{
+			font-size: 0;
+			height:500px;
+			width:1200px;
+			display: block;
+			margin:0 auto;
+		}
+		.map img{
+			width:100px;
+			height:100px;
+		}
+		#battleFeild{
+			position: fixed;
+			top: 0;
+			left:0;
+			width:100%;
+			height:500px;
+			background-color: rgba(0,0,0,0.3);
+			z-index: 999;
+			padding:20px;
+		}
+		#battleFeild img{
+			display: none;
+			width:300px;
+			height:300px;
+		}
+		.escape{
+			font-size: 30px;
+			padding: 10px 30px;
+			border-radius: 5px;
+			background-color: rgba(0,0,0,0);
+			color:white;
+			border:1px solid white;
+		}
+		.escape:hover{
+			background-color: rgba(255,255,255,0.3);
+			color:#333;
+		}
+		.escape:active{
+			background-color: #fff;
+			font-size: 28px;
+		}
+	</style>
+</head>
+<body>
+	<div class="map"></div>
+	<div id="battleFeild" class="flex x-between y-center">
+		<div class="config">
+			<h3>hero</h3>
+			<div><b>HP：</b><span class="hp">100</span></div>
+			<div><b>MP：</b><span class="mp">100</span></div>
+			<div><b>攻击：</b><span class="ad">1</span></div>
+			<div><b>魔攻：</b><span class="ap">0</span></div>
+			<div><b>暴击：</b><span class="cris">0</span></div>
+			<div><b>闪避：</b><span class="dodge">0</span></div>
+			<div><b>吸血：</b><span class="suck">0</span></div>
+			<div><b>物防：</b><span class="defD">10</span></div>
+			<div><b>魔防：</b><span class="defP">10</span></div>
+		</div>
+		<img src="img/1.gif" alt="">
+		<button class="escape">逃跑</button>
+		<img src="img/2.gif" alt="">
+		<div class="config">
+			<h3>enemy</h3>
+			<div><b>HP：</b><span class="hp">100</span></div>
+			<div><b>MP：</b><span class="mp">100</span></div>
+			<div><b>攻击：</b><span class="ad">1</span></div>
+			<div><b>魔攻：</b><span class="ap">0</span></div>
+			<div><b>暴击：</b><span class="cris">0</span></div>
+			<div><b>闪避：</b><span class="dodge">0</span></div>
+			<div><b>吸血：</b><span class="suck">0</span></div>
+			<div><b>物防：</b><span class="defD">10</span></div>
+			<div><b>魔防：</b><span class="defP">10</span></div>
+		</div>
+	</div>
+	<!-- <canvas width="1000" id="can" height="500"></canvas> -->
+	<script src="js/leo.js"></script>
+	<script>
+		
+		function makeName(){
+			var name = '暖雨晴风初破冻柳眼梅腮已觉春心动酒意诗情谁与共泪融残粉花钿重乍试夹衫金缕缝山枕斜欹枕损钗头凤独抱浓愁无好梦夜阑犹剪灯花弄湖上风来波浩渺秋已暮红稀香少水光山色与人亲说不尽无穷好莲子已成荷叶老青露洗萍花汀草眠沙鸥鹭不回头似也恨人归早残寒销尽疏雨过清明后花径敛余红风沼萦新皱乳燕穿庭户飞絮沾襟袖正佳时仍晚昼著人滋味真个浓如酒频移带眼空只恁厌厌瘦不见又思量见了还依旧为问频相见何似长相守天不老人未偶且将此恨分付庭前柳';
+			var str = '';
+			var len = 1 + Math.round(3*Math.random())
+			l.times(len,function(){
+				str += name.charAt(Math.round(Math.random() * name.length))
+			})
+			return str;
+		}
+
+		var Person = function(data){
+			this.name   = "";
+			this.pic    = '1.gif';
+			this.land   = 1;//怪物领地，需击杀怪物才能点开其领地
+			this.maxHp  = 10;
+			this.maxMp  = 10;
+			this.hp     = 1;
+			this.mp     = 1;
+			this.lv     = 1;
+			this.defD   = 1;
+			this.defP   = 1;
+			this.speed  = 1;//攻击速度
+			this.Catch  = 50;//反逃跑成功率
+			this.escape = 50;//逃跑成功率
+			this.dodge  = 0;//闪避
+			this.crit   = 0;//暴击
+			this.suck   = 0;//吸血
+			this.ad     = 1;
+			this.ap     = 0;
+			this.skill  = [];
+			this.armor = {
+				head:false,
+				shoulder:false,
+				neck:false,
+				arm:false,
+				body:false,
+				belt:false,
+				leg:false,
+				foot:false,
+				ring:false
+			};
+
+			this.extend(data);
+
+			this.attackTimer = false;
+
+			this.activeRender();
+			this.render();
+		}
+		Person.prototype = {
+			/**
+			 * attack
+			 * @param  {Person} enemy 敌人
+			 * @return {[type]}       [description]
+			 */
+			attack:function(enemy){
+				var This = this;
+				var ad;
+				this.attackTimer = setInterval(function(){
+					ad = This.ad;
+					if(Math.random()<=This.crit){
+						 ad *= 2;
+						 console.log('暴击');
+					}
+					(enemy.hp - ad)>0 ? enemy.hp -= ad : enemy.hp = 0;
+
+
+
+					console.log(This.name+ " 对 "+ enemy.name +" 造成 "+ad+" 点伤害")
+
+					enemy.activeRender()
+
+					if(enemy.hp <= 0){
+						enemy.die();
+						map.hasMonster = false;
+						l.id('battleFeild').css('display','none');
+						clearInterval(This.attackTimer)
+					}
+				},1000/this.speed)
+			},
+			die:function(){
+				console.log(this.name + "死亡");
+
+
+				this.hp = 0;
+				clearInterval(this.attackTimer);
+			},
+			activeRender:function(){
+				l._class('hp',this.dom).html(this.hp);
+				l._class('mp',this.dom).html(this.mp);
+			},
+			render:function(){
+				l._class('ad',this.dom).html(this.ad);
+				l._class('ap',this.dom).html(this.ap);
+				l._class('crit',this.dom).html(this.crit);
+				l._class('dodge',this.dom).html(this.dodge);
+				l._class('suck',this.dom).html(this.suck);
+				l._class('defD',this.dom).html(this.defD);
+				l._class('defP',this.dom).html(this.defP);
+			}
+		}
+
+
+		var Map = function(ldom){
+			var that = this;
+			this.map = ldom;
+			this.hasMonster = false;//检测地图是否有怪物，如果有的话就不能翻地图
+
+			this.map.click(function(ev){
+				if(that.hasMonster) return;
+				var e = ev || event;
+				var tar = e.target || e.srcElement;
+				// alert(tar.tagName)
+				if(tar.dataset['blockOpen'] == 0){
+					tar.dataset['blockOpen'] = 1;
+					tar.src = 'img/'+tar.dataset['src'];
+				}
+				if(tar.dataset['isMonster'] == 1){
+					that.hasMonster = new Person({
+						name:makeName()
+					})
+				}
+			})
+			this.block = [];
+			this.init();
+		}
+		Map.prototype = {
+			createBlock:function(open,isMonster){
+				var openImg = open || 'open.png'
+				return l.create({
+						tag:'img',
+						attr:{
+							src:'img/close.png'
+						},
+						data:{
+							isMonster:isMonster || 0,
+							blockOpen:0,
+							src:openImg
+						}
+					})
+			},
+			init:function(){
+				var monsterAmount = Math.round(Math.random()*10)+10;
+				// alert(monsterAmount)
+				this.hasMonster = false;
+				for(var i = 0 ; i < 60; i ++){
+					if(monsterAmount > 0){
+						this.block.push(this.createBlock(Math.ceil(Math.random()*91)+".gif","1"))
+						monsterAmount--;
+					}else{
+						this.block.push(this.createBlock())
+					}
+				}
+				this.block.shuffle()
+				for(var i = 0 ; i < 60; i++){
+					this.map.append(this.block[i]);
+				}
+			},
+			battleFeild:function(hero,enemy){
+				l.id('battleFeild').css('display','block');
+				hero.attack(enemy);
+				enemy.attack(hero);
+			}
+		}
+		var map = new Map(l._class('map'))
+		// var c = 40;
+		// var e = 60;
+		// var s = 0;
+		// var l = 0;
+		// for(var i = 0; i < 100; i ++){
+		// 	if(c*Math.random() < e*Math.random()){
+		// 		s++;
+		// 		console.log('成功')
+		// 	}else{
+		// 		l++
+		// 		console.log('失败')
+		// 	}
+		// }
+		// console.log('成功:'+s);
+		// console.log('失败:'+l);
+		// 
+		var hero = new Person({
+			name:'蒙爷',
+			hp:100,
+			crit:Math.random(),
+			dom:l._class('config'),
+			speed:1.5
+		})
+		var monster = new Person({
+			hp:20,
+			speed:3,
+			crit:Math.random(),
+			dom:l._class('config[1]'),
+			name:makeName()
+		})
+		hero.attack(monster)
+		monster.attack(hero)
+	</script>
+</body>
+</html>

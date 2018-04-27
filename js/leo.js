@@ -157,7 +157,7 @@
 	
 	// l.aniFrm = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 	l.info = {
-		version:'1.0.0',
+		version:'1.5.6',
 		author:'Leo Xie',
 		email:'xiemenga11@126.com'
 	}
@@ -182,28 +182,35 @@
 	}
 	l._class = function(cls,parent){
 		var reg = /\[\d+\]/;
+		var c = cls;
 		var index = 0;
-		var p = parent || document;
+		var p = parent ? (parent instanceof _l ? parent.dom : parent) : document;
+
 		if(reg.test(cls)){
-			index = parseInt(cls.match(reg)[0]);
+			index = cls.match(reg)[0];
+			c = c.replace(index,'');
+			index = index.slice(1,index.length-1);
 		}
-		return new _l(p.getElementsByClassName(cls)[index]);
+		return new _l(p.getElementsByClassName(c)[~~index]);
 	}
 	l.tag = function(tag,parent){
 		var reg = /\[\d+\]/;
 		var index = 0;
-		var p = parent || document;
+		var t = tag;
+		var p = parent ? (parent instanceof _l ? parent.dom : parent) : document;
 		if(reg.test(tag)){
-			index = parseInt(cls.match(reg)[0]);
+			index = tag.match(reg)[0];
+			t = r.replace(index,'');
+			index = index.slice(1,index.length-1);
 		}
-		return new _l(p.getElementsByTagName(tag)[index]);
+		return new _l(p.getElementsByTagName(t)[~~index]);
 	}
 	l._classAll = function(cls,parent){
-		var p = parent || document;
+		var p = parent ? (parent instanceof _l ? parent.dom : parent) : document;
 		return p.getElementsByClassName(cls);
 	}
 	l.tagAll = function(tag,parent){
-		var p = parent || document;
+		var p = parent ? (parent instanceof _l ? parent.dom : parent) : document;
 		return p.getElementsByTagName(tag);
 	}
 	/**
@@ -490,7 +497,7 @@
 	 * @return {[type]}        [description]
 	 */
 	l.cancelAniFrm = function(aniFrm){
-		cancelAnimationFrame(aniFrm);
+		cancelAnimationFrame ? cancelAnimationFrame(aniFrm) : clearTimeout(aniFrm);
 	}
 
 	// ajax
@@ -605,13 +612,34 @@
 		return this;
 	}
 	
-	Function.prototype.extend = function(parent,method){
-		this.prototype = new parent();
+	/**
+	 * 继承
+	 * @param  {func} superType 要继承的父类
+	 * @param  {obj} method 要向子类添加的方法
+	 * @return {[type]}           [description]
+	 * 子类构造函数里必须要有父类的function.call(this,父类要用的参数)
+	 * function father(name){
+	 * 		this.name = name
+	 * }
+	 * function child(name,age){
+	 * 		father.call(this,name);
+	 * 		this.age = age;
+	 * }
+	 * 要向子类添加方法需用
+	 * child.prototype.extend({
+	 * 		method:function(){
+	 * 			......
+	 * 		}
+	 * })
+	 */
+	Function.prototype.extend = function(superType,method){
+		var superPro =Object.create ? Object.create(superType.prototype) : Object(superType.prototype);
+		var subPro =Object.create ? Object.create(this.prototype) : Object(this.prototype);
+		superPro.extend(subPro);
+		superPro.constructor = this;
+		this.prototype = superPro;
 		if(method){
-			var that = this;
-			method.each(function(i){
-				that.prototype[i] = this;
-			})
+			this.prototype.extend(method);
 		}
 	}
 

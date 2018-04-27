@@ -10,7 +10,6 @@
 		-webkit-box-sizing: border-box;
 		-moz-box-sizing: border-box;
 		box-sizing: border-box;
-		background-color: #fff;
 	}
 	body{
 		background-color: #ddd;
@@ -21,6 +20,10 @@
 		height:600px;
 		/*border:1px solid red;*/
 		margin:10px auto;
+		background-image: url('img/fanfankanBG.jpg');
+		-webkit-background-size: 100%;
+		background-size: 100%;
+		background-position: center;
 	}
 	.left{
 		width:200px;
@@ -39,6 +42,7 @@
 		overflow-y:scroll; 
 	}
 	.poker-card{
+		border-radius:12px;
 		width:150px;
 	}
 	.btn{
@@ -46,9 +50,10 @@
 		margin-left: 10px;
 		width:100px;
 		padding:10px;
-		background-color: #007aff;
+		background-color: gold;
 		color:white;
 		border:none;
+		font-weight: 600;
 		border-radius:5px;
 	}
 	.total-score,
@@ -67,11 +72,14 @@
 		top:0;
 		left:0;
 	}
+	.score-board div{
+		margin-bottom:20px; 
+	}
 	</style>
 </head>
 <body>
 <div id="table" class="clear">
-	<div class=" fl left bor-r">
+	<div class="score-board fl left bor-r pad">
 		<h3>BONUS</h3>
 		<div><span>五　条：</span><span class="bonus-i wt" data-type="wt"></span></div>
 		<div><span>同花顺：</span><span class="bonus-i ths" data-type="ths"></span></div>
@@ -79,7 +87,7 @@
 		<div><span>葫　芦：</span><span class="bonus-i hl" data-type="hl"></span></div>
 		<div><span>同　花：</span><span class="bonus-i th" data-type="th"></span></div>
 		<div><span>顺　子：</span><span class="bonus-i sz" data-type="sz"></span></div>
-		<h3>战绩</h3>
+		<h3 style="margin-top:30px;">战绩</h3>
 		<div><span>赢场数：</span><span class="bonus-i winCount"></span></div>
 		<div><span>总场数：</span><span class="bonus-i totalCount"></span></div>
 		<div><span>胜　率：</span><span class="bonus-i winPercent"></span></div>
@@ -338,6 +346,26 @@ loadImg();
 		return reg.test(arr.join(''));
 	}
 
+
+	//before num --
+	//检查有无大小王
+	// var arr = ['z15','h1','t5','y7','z14'];
+	function hasPoker(arr){
+		var i = 0;
+		console.log(arr.indexOf('z14'))
+		arr.has('z14') && (i++) && arr.splice(arr.indexOf('z14'),1);
+		console.log(arr.indexOf('z15'))
+		arr.has('z15') && (i++) && arr.splice(arr.indexOf('z15'),1);
+		return i;
+	}
+	// console.log(arr);
+	// arr.splice(0,1)
+	// arr.splice(3,1)
+
+	// console.log(hasPoker(arr));
+	// console.log(arr);
+
+
 	//暂时选定判断顺子
 	// function isSz2(arr,min){
 	// 	var x = arr.max() + min;
@@ -402,6 +430,9 @@ loadImg();
 		
 		//判断是否为顺子
 		var min = num.min();
+		var max = num.max();
+
+
 		num.each(function(i){
 			num[i] -= min;
 		})

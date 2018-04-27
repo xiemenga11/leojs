@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>new game</title>
+	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+	<link rel="stylesheet" href="../css/main.css">
+	<style>
+		#can{
+			width:100%;
+			height:100%;
+			display: block;
+			margin:0 auto;
+			background-color: #aaa;
+		}
+		body{
+			font-size: 0;
+		}
+		button{
+			padding:5px 10px;
+			position: fixed;
+			bottom:10px;
+			left:10px;
+		}
+	</style>
+</head>
+<body>
+	<button id="res">重新开始</button>
+	<canvas id="can" width="800" height="600"></canvas>
+	<script src="../js/leo.js"></script>
+	<script>
+		// alert("提示\n--------------------\n空格:跳跃\n回车:重新开始")
+		var can = document.getElementById('can');
+		var con = can.getContext('2d');
+
+		con.font="20px Arial";
+		con.fillStyle = "#007aff";
+
+		var screenWid = l.scr.W;
+		var Pipe = function(){
+			this.init();
+			this.posX = 800 + Math.random() * 800;
+		}
+
+		Pipe.prototype = {
+			init:function(){
+				this.hei = Math.random() * 200 + 40;
+				this.wid = 40;
+				this.posX = 800;
+				this.score = 1;
+				this.posY = Math.random() * (600-this.hei);
+				this.color = '#007aff';
+				this.speed = Math.random() * 2 + 1;
+			},
+			run:function(){
+				if(this.posX <= -40){
+					this.init();
+				}else{
+					this.posX -= this.speed;
+				}
+				this.draw();
+			},
+			draw:function(){
+				con.fillRect(this.posX,this.posY,this.wid,this.hei);
+			}
+		}
+
+		var Bird = function(){
+			this.init();
+		}
+
+		var d = 0;
+		var birdImg = new Image();
+		birdImg.src = 'bird.png';
+		Bird.prototype = {
+			init:function(){
+				this.wid = 30;
+				this.hei = 30;
+				this.posY = 240;
+				this.posX = 200;
+				this.speed = 2;
+				this.body = birdImg;
+			},
+			draw:function(){
+				d = (this.speed>=0) ? -30 : 30;
+				con.save()
+				con.translate(this.posX+this.wid/2,this.posY+this.hei/2)
+				con.rotate(d*Math.PI/180);
+				con.drawImage(this.body,-15,-15,this.wid,this.hei);
+				con.restore()
+			},
+			run:function(ani){
+				this.speed -= 0.1;
+				this.posY -= this.speed;
+				this.draw();
+				this.die();
+			},
+			die:function(){
+				if(this.posY >= 600-this.hei || this.posY <= 0){
+					
+					alert('您死了\n分数:'+score)
+					l.cancelAniFrm(ani);
+					ani = null;
+					score = 0;
+				}
+			}
+		}
+
+		var score = 0;
+		var b = new Bird();
+		var ani;
+		var pipes = [];
+		var pipAmout = 8;
+		for(var i = 0; i < pipAmout; i++){
+			pipes.push(new Pipe())
+		}
+		document.onkeydown = function(e){
+			if(e.keyCode == 32){
+				b.speed = 3;
+			}
+			if(e.keyCode == 13){
+				restart()
+			}
+		}
+
+		document.onclick = function(){
+			b.speed = 3;
+		}
+		document.getElementById('res').onclick = restart;
+		function restart(){
+			for(var i = 0; i < pipAmout; i++){
+					pipes[i].init();
+					pipes[i].posX = 800 + Math.random() * 800;
+				}
+				b.init();
+				if(!ani){
+					ani = l.aniFrm(mainloop)
+				}
+		}
+		ani = l.aniFrm(mainloop)
+		function mainloop(timestamp){
+			con.clearRect(0,0,800,600);
+			con.fillText("score:"+score,10,30);
+			ani = l.aniFrm(mainloop)
+			b.run() 
+			for(var i = 0; i < pipAmout; i++){
+				if(pipes[i].score && pipes[i].posX <= 160){
+					score++;
+					pipes[i].score = 0;
+				}
+				pipes[i].run();
+				
+				if(b.posX + b.wid>= pipes[i].posX && b.posX <= pipes[i].posX + 40 && b.posY+b.hei >= pipes[i].posY && b.posY<=pipes[i].posY+pipes[i].hei ){
+					alert('您死了\n分数:'+score)
+					l.cancelAniFrm(ani)
+					ani = null;
+					score = 0;
+				}
+			}
+			
+
+		}
+	</script>
+</body>
+</html>

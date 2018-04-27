@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>focus</title>
+	<style>
+		#focus{
+			width:400px;
+			height:300px;
+			margin:0 auto;
+			background-color: yellow;
+		}
+		.focus-father{
+			padding:0!important;
+		}
+		.focus-father * {
+			box-sizing:border-box;
+			-webkit-box-sizing:border-box;
+			-moz-box-sizing:border-box;
+			-ms-box-sizing:border-box;
+			-o-box-sizing:border-box;
+		}
+		.focus-wrap{
+			height:100%;
+			zoom:1;
+		}
+		.focus-wrap:after{
+			display: block;
+			content:'';
+			clear:both;
+		}
+		.focus-wrap .focus-item{
+			height:100%;
+			float:left;
+			position: relative;
+			background-repeat: no-repeat;
+			background-size: 100%;
+			background-position: center;
+			background-color: #eee;
+		}
+
+		.item-description{
+			width:100%;
+			background-color: rgba(0,0,0,0.3);
+			color:white;
+			padding:10px;
+			position:absolute;
+			left:0;
+		}
+
+		.focus-description-bottom{
+			bottom:0;
+		}
+		.focus-description-top{
+			top:0;
+		}
+	</style>
+</head>
+<body>
+	<div id="focus">
+		<div class="focus-wrap">
+			<div class="focus-item" style="background-image:url('img/11.gif');">
+				<div class="item-description">this is a description</div>
+			</div>
+			<div class="focus-item" style="background-image:url('img/11.gif');">
+				<div class="item-description">this is a description</div>
+			</div>
+		</div>
+	</div>
+<script src="js/leo.js"></script>
+<script>
+	//require leo.js
+	/**
+	 * 焦点图
+	 * @param {obj} data 配置文件
+	 * data = {
+	 * 	el:ldom   focus father element
+	 * 	data:[{},{}]  要传入 的图片
+	 * }
+	 */
+	var Focus = function(data){
+		var that = this;
+		this.config = {
+			descriptionPosition:'bottom',//top || bottom
+			descriptionStyle:{
+
+			},
+			cursorStyle:{
+
+			}
+		}
+		this.config.extend(data.config);
+
+		this.el = data.el//ldom
+		this.wrap = l._class('focus-wrap',this.el);//图片盒子
+		this.items = l._classAll('focus-item',this.wrap);
+
+		console.dir(this.items)
+
+		this.wid = this.el.offset('width');
+		this.hei = this.el.offset('height');
+		this.data = data.data || {};
+
+		this.items.each(function(i){
+			l(this).css('width',that.wid+'px').cls().add('focus-description-'+that.config.descriptionPosition);
+		})
+
+		this.el.cls().add('focus-father');
+
+		if(data.data){
+			data.data.each(function(i){
+				var des = this.des || false;
+				that.items.push(that.createItem(this.src,des));
+			})
+		}
+
+		this.wrap.css('width',this.items.length * this.wid + 'px');
+	}
+
+	Focus.prototype = {
+		createItem:function(src,des){
+			if(!src) return ;
+			var item = l.create({
+				tag:'div',
+				style:{
+					backgroundImage:'url('+src+')'
+				},
+				parent:this.wrap,
+				_class:'focus-item'
+			});
+
+			if(des){
+				l.create({
+					tag:'div',
+					parent:item,
+					_class:'item-description'
+				})
+			}
+		}
+	}
+	var f = new Focus({
+		el:l.id('focus'),
+		data:[{
+			src:'img/23.gif',
+			des:'hahahaha'
+		},{
+			src:'img/33.gif'
+		}]
+	})
+</script>
+</body>
+</html>
