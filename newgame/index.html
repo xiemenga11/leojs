@@ -50,7 +50,7 @@
 	<script src="../js/Bmob-min.js"></script>
 	<script>
 		// alert("提示\n--------------------\n空格:跳跃\n回车:重新开始")
-		Bmob.initialize('2fc7347823fc0ad00b00121b3cea9354','09c5119023607cef6917d2136e4c1b27');
+		// Bmob.initialize('2fc7347823fc0ad00b00121b3cea9354','09c5119023607cef6917d2136e4c1b27');
 		var can = document.getElementById('can');
 		var con = can.getContext('2d');
 
@@ -209,7 +209,7 @@
 			},
 			die:function(){
 				if(this.posY >= 600-this.hei || this.posY <= 0){
-					checkScore(score);
+					// checkScore(score);
 
 
 					alert('您死了\n分数:'+score);
@@ -220,23 +220,23 @@
 			}
 		}
 
-		var Lev = Bmob.Object.extend('gamelev');
-		var lev = new Lev();
-		var quer = new Bmob.Query(Lev);
-		quer.descending('score');
-		quer.find({
-			success:function(ret){
-				var arr = [];
-				for(var i = 0,len = ret.length; i < len;i++){
-					arr.push({
-						id:ret[i].id,
-						name:ret[i].get('name'),
-						score:ret[i].get('score')
-					})
-				}
-				localStorage['gameData'] = JSON.stringify(arr);
-			}
-		})
+		// var Lev = Bmob.Object.extend('gamelev');
+		// var lev = new Lev();
+		// var quer = new Bmob.Query(Lev);
+		// quer.descending('score');
+		// quer.find({
+		// 	success:function(ret){
+		// 		var arr = [];
+		// 		for(var i = 0,len = ret.length; i < len;i++){
+		// 			arr.push({
+		// 				id:ret[i].id,
+		// 				name:ret[i].get('name'),
+		// 				score:ret[i].get('score')
+		// 			})
+		// 		}
+		// 		localStorage['gameData'] = JSON.stringify(arr);
+		// 	}
+		// })
 		function checkScore(score){
 			if(localStorage['gameData']){
 				var gameArr = l.strToJson(localStorage['gamelev']);
@@ -347,7 +347,7 @@
 				
 				if(b.posX + b.wid>= pipes[i].posX && b.posX <= pipes[i].posX + 40 && b.posY+b.hei >= pipes[i].posY && b.posY<=pipes[i].posY+pipes[i].hei ){
 					
-					checkScore(score);
+					// checkScore(score);
 
 					alert('您死了\n分数:'+score)
 					l.cancelAniFrm(ani)
