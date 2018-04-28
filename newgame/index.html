@@ -6,12 +6,24 @@
 	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
 	<link rel="stylesheet" href="../css/main.css">
 	<style>
+		.wrap{
+			width:100%;
+			height:100%;
+		}
+		#bg{
+			background-color: #65cde6;
+		}
+		#bg,
+		#bg2,
+		#bg3,
 		#can{
+			position: fixed;
+			left:0;
+			top:0;
 			width:100%;
 			height:100%;
 			display: block;
 			margin:0 auto;
-			background-color: #aaa;
 		}
 		body{
 			font-size: 0;
@@ -21,30 +33,82 @@
 			position: fixed;
 			bottom:10px;
 			left:10px;
+			z-index: 999;
+			cursor:pointer;
 		}
 	</style>
 </head>
 <body>
 	<button id="res">重新开始</button>
-	<canvas id="can" width="800" height="600"></canvas>
+	<div class="wrap rel">
+		<canvas id="bg" width="800" height="600"></canvas>
+		<canvas id="bg2" width="800" height="600"></canvas>
+		<canvas id="bg3" width="800" height="600"></canvas>
+		<canvas id="can" width="800" height="600"></canvas>
+	</div>
 	<script src="../js/leo.js"></script>
+	<script src="../js/Bmob-min.js"></script>
 	<script>
 		// alert("提示\n--------------------\n空格:跳跃\n回车:重新开始")
+		Bmob.initialize('2fc7347823fc0ad00b00121b3cea9354','09c5119023607cef6917d2136e4c1b27');
 		var can = document.getElementById('can');
 		var con = can.getContext('2d');
 
+		var bg1 = document.getElementById('bg');
+		var bg1Con = bg.getContext('2d');
+
+		var bg2 = document.getElementById('bg2');
+		var bg2Con = bg2.getContext('2d');
+
+		var bg3 = document.getElementById('bg3');
+		var bg3Con = bg3.getContext('2d');
+
+		var c = new Image();
+		c.src = 'cloud.png';
+		var tr = new Image();
+		tr.src = 'tree.png';
+		var g = new Image();
+		g.src = 'grass.png';
+		var pipeImg = new Image();
+		pipeImg.src = 'pipe.jpg';
+
+		var Body = function(bg,pianyi,body,posX,posY,speed){
+			this.body = body;
+			this.posX = posX || 0;
+			this.posY = posY || 200;
+			this.speed = speed || 1;
+			this.bgCon = bg;
+			this.pianyi = pianyi;
+		}
+		Body.prototype = {
+			run:function(){
+				if(this.posX >= -200){
+					this.posX-= this.speed;
+				}else{
+					this.posX = 800;
+				}
+				this.draw();
+			},
+			draw:function(){
+				this.bgCon.drawImage(this.body,this.posX,this.posY,203+this.pianyi,600-this.posY)
+			}
+		}
+
 		con.font="20px Arial";
 		con.fillStyle = "#007aff";
-
+		con.lineWidth = 2;
+		con.lineCap = 'round';
+		con.strokeStyle = '#110000';
 		var screenWid = l.scr.W;
 		var Pipe = function(){
 			this.init();
+			this.body = pipeImg;
 			this.posX = 800 + Math.random() * 800;
 		}
 
 		Pipe.prototype = {
 			init:function(){
-				this.hei = Math.random() * 200 + 40;
+				this.hei = Math.random() * 100 + 100;
 				this.wid = 40;
 				this.posX = 800;
 				this.score = 1;
@@ -61,12 +125,52 @@
 				this.draw();
 			},
 			draw:function(){
-				con.fillRect(this.posX,this.posY,this.wid,this.hei);
+				con.drawImage(this.body,this.posX,this.posY,this.wid,this.hei);
+				
+				con.strokeRect(this.posX,this.posY,this.wid,this.hei);
+				con.strokeRect(this.posX-1,this.posY-1,this.wid+2,20);
+				con.strokeRect(this.posX-1,this.posY+this.hei-19,this.wid+2,20);
 			}
 		}
 
 		var Bird = function(){
 			this.init();
+		}
+
+		var Tail = function(bird,alpha){
+			this.init(bird)
+			if(alpha) this.alpha = alpha;
+		}
+		Tail.prototype = {
+			init:function(bird){
+				var b = Object.create(bird);
+				this.size = 3;
+				this.alpha = 1;
+				this.posX = b.posX;
+				this.posY = b.posY+b.hei/2;
+			},
+			run:function(bird){
+				if(this.alpha >= 0){
+					this.alpha -= 0.03;
+					this.size += 0.1;
+					this.posX -= 1;
+				}else{
+					this.size = 3;
+					this.posX = bird.posX;
+					this.posY = bird.posY+b.hei/2;
+					this.alpha = 1;
+				}
+				this.draw();
+			},
+			draw:function(){
+				con.save();
+				con.beginPath();
+				con.fillStyle = "rgba(255,255,255,"+this.alpha+")";
+				con.arc(this.posX,this.posY,this.size,0,2*Math.PI);
+				con.fill();
+				con.closePath();
+				con.restore();
+			}
 		}
 
 		var d = 0;
@@ -80,9 +184,12 @@
 				this.posX = 200;
 				this.speed = 2;
 				this.body = birdImg;
+
+				this.tail = [new Tail(this),new Tail(this,0.5),new Tail(this,0)];
 			},
 			draw:function(){
 				d = (this.speed>=0) ? -30 : 30;
+				
 				con.save()
 				con.translate(this.posX+this.wid/2,this.posY+this.hei/2)
 				con.rotate(d*Math.PI/180);
@@ -94,14 +201,61 @@
 				this.posY -= this.speed;
 				this.draw();
 				this.die();
+
+				for(var i = 0; i < 3; i++){
+					this.tail[i].run(this);
+				}
+				// this.tail.run(this);
 			},
 			die:function(){
 				if(this.posY >= 600-this.hei || this.posY <= 0){
-					
-					alert('您死了\n分数:'+score)
+					checkScore(score);
+
+
+					alert('您死了\n分数:'+score);
 					l.cancelAniFrm(ani);
 					ani = null;
 					score = 0;
+				}
+			}
+		}
+
+		var Lev = Bmob.Object.extend('gamelev');
+		var lev = new Lev();
+		var quer = new Bmob.Query(Lev);
+		quer.descending('score');
+		quer.find({
+			success:function(ret){
+				var arr = [];
+				for(var i = 0,len = ret.length; i < len;i++){
+					arr.push({
+						id:ret[i].id,
+						name:ret[i].get('name'),
+						score:ret[i].get('score')
+					})
+				}
+				localStorage['gameData'] = JSON.stringify(arr);
+			}
+		})
+		function checkScore(score){
+			if(localStorage['gameData']){
+				var gameArr = l.strToJson(localStorage['gamelev']);
+				for(var i = 0, len = gameArr.length; i < len ; i++){
+					if(score > ~~gameArr[i].score){
+						
+						/**
+						 * 你需要在这里写排行榜代码
+						 *
+						 *
+						 *
+						 *
+						 *
+						 * 
+						 */
+
+
+
+					}
 				}
 			}
 		}
@@ -123,8 +277,14 @@
 			}
 		}
 
-		document.onclick = function(){
-			b.speed = 3;
+		if('ontouchstart' in document.documentElement){
+    		document.ontouchstart=function(){
+    			b.speed = 3;
+    		}
+    	}else{
+			document.onclick = function(){
+				b.speed = 3;
+			}
 		}
 		document.getElementById('res').onclick = restart;
 		function restart(){
@@ -137,10 +297,45 @@
 					ani = l.aniFrm(mainloop)
 				}
 		}
+
+		var cl = [
+					new Body(bg1Con,0,c,-200),
+					new Body(bg1Con,0,c,0),
+					new Body(bg1Con,0,c,200),
+					new Body(bg1Con,0,c,400),
+					new Body(bg1Con,0,c,600)
+				];
+
+		var trs = [
+					new Body(bg2Con,2,tr,-200,400,2),
+					new Body(bg2Con,2,tr,0,400,2),
+					new Body(bg2Con,2,tr,200,400,2),
+					new Body(bg2Con,2,tr,400,400,2),
+					new Body(bg2Con,2,tr,600,400,2)
+				];
+		var gs = [
+					new Body(bg3Con,4,g,-200,420,3),
+					new Body(bg3Con,4,g,0,420,3),
+					new Body(bg3Con,4,g,200,420,3),
+					new Body(bg3Con,4,g,400,420,3),
+					new Body(bg3Con,4,g,600,420,3)
+				];
 		ani = l.aniFrm(mainloop)
 		function mainloop(timestamp){
+			bg1Con.clearRect(0,0,800,600);
+			bg2Con.clearRect(0,0,800,600);
+			bg3Con.clearRect(0,0,800,600);
 			con.clearRect(0,0,800,600);
-			con.fillText("score:"+score,10,30);
+			//bg
+			for(var i = 0; i < 5; i++){
+				cl[i].run();
+				trs[i].run();
+				gs[i].run();
+			}
+
+
+			
+
 			ani = l.aniFrm(mainloop)
 			b.run() 
 			for(var i = 0; i < pipAmout; i++){
@@ -151,13 +346,16 @@
 				pipes[i].run();
 				
 				if(b.posX + b.wid>= pipes[i].posX && b.posX <= pipes[i].posX + 40 && b.posY+b.hei >= pipes[i].posY && b.posY<=pipes[i].posY+pipes[i].hei ){
+					
+					checkScore(score);
+
 					alert('您死了\n分数:'+score)
 					l.cancelAniFrm(ani)
 					ani = null;
 					score = 0;
 				}
 			}
-			
+			con.fillText("score:"+score,700,30);
 
 		}
 	</script>
