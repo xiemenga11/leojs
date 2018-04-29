@@ -94,7 +94,7 @@
 			}
 		}
 
-		con.font="20px Arial";
+		con.font="20px Arial bolder";
 		con.fillStyle = "#007aff";
 		con.lineWidth = 2;
 		con.lineCap = 'round';
@@ -114,7 +114,7 @@
 				this.score = 1;
 				this.posY = Math.random() * (600-this.hei);
 				this.color = '#007aff';
-				this.speed = Math.random() * 2 + 1;
+				this.speed = Math.random() * 2 + 2;
 			},
 			run:function(){
 				if(this.posX <= -40){
@@ -185,7 +185,7 @@
 				this.speed = 2;
 				this.body = birdImg;
 
-				this.tail = [new Tail(this),new Tail(this,0.5),new Tail(this,0)];
+				this.tail = [new Tail(this,0.3),new Tail(this,0.6),new Tail(this,0.9)];
 			},
 			draw:function(){
 				d = (this.speed>=0) ? -30 : 30;
