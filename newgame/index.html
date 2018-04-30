@@ -29,10 +29,15 @@
 			font-size: 0;
 		}
 		button{
+			display: none;
+			background-color: #65cde6;
+			color:white;
+			border:none;
+			border-radius: 5px;
 			padding:5px 10px;
 			position: fixed;
 			bottom:10px;
-			left:10px;
+			right:10px;
 			z-index: 999;
 			cursor:pointer;
 		}
@@ -51,6 +56,12 @@
 	<script>
 		// alert("提示\n--------------------\n空格:跳跃\n回车:重新开始")
 		// Bmob.initialize('2fc7347823fc0ad00b00121b3cea9354','09c5119023607cef6917d2136e4c1b27');
+		var clickMsc = l.create({
+			tag:'audio'
+		}).dom;
+		clickMsc.src = "click.mp3";
+
+
 		var can = document.getElementById('can');
 		var con = can.getContext('2d');
 
@@ -95,11 +106,41 @@
 		}
 
 		con.font="20px Arial bolder";
-		con.fillStyle = "#007aff";
+		con.fillStyle = "#fff";
 		con.lineWidth = 2;
 		con.lineCap = 'round';
-		con.strokeStyle = '#110000';
+		con.strokeStyle = '#113300';
+		var isLost = false;
 		var screenWid = l.scr.W;
+		var score = 0;
+
+		function showLoseStr(sc){
+			if(!isLost) return;
+			var dis = 0;
+			if(sc<10){
+				dis = 30;
+			}else if(sc<100){
+				dis = 15;
+			}
+			con.save();
+			con.globalCompositeOperation = "source-over";
+			con.fillStyle = 'rgba(0,0,0,0.3)';
+			con.fillRect(250,150,300,300)
+			con.restore();
+			con.save();
+			con.globalCompositeOperation = "source-over";
+			con.fillStyle = 'white';
+			con.font = '40px Arial bolder';
+			con.fillText('score',350,220)
+			con.restore();
+			con.save();
+			con.globalCompositeOperation = "source-over";
+			con.fillStyle = 'white';
+			con.font = '60px Arial bolder';
+			con.fillText(sc,350+dis,330)
+			con.restore();
+		}
+
 		var Pipe = function(){
 			this.init();
 			this.body = pipeImg;
@@ -212,10 +253,12 @@
 					// checkScore(score);
 
 
-					alert('您死了\n分数:'+score);
+					l.id('res').css('display','block');
+					// alert('您死了\n分数:'+score);
+					isLost = true;
+					showLoseStr(score);
 					l.cancelAniFrm(ani);
 					ani = null;
-					score = 0;
 				}
 			}
 		}
@@ -260,7 +303,7 @@
 			}
 		}
 
-		var score = 0;
+		
 		var b = new Bird();
 		var ani;
 		var pipes = [];
@@ -271,6 +314,8 @@
 		document.onkeydown = function(e){
 			if(e.keyCode == 32){
 				b.speed = 3;
+				clickMsc.load();
+				clickMsc.play();
 			}
 			if(e.keyCode == 13){
 				restart()
@@ -280,14 +325,22 @@
 		if('ontouchstart' in document.documentElement){
     		document.ontouchstart=function(){
     			b.speed = 3;
+    			clickMsc.load();
+				clickMsc.play();
     		}
     	}else{
 			document.onclick = function(){
 				b.speed = 3;
+				clickMsc.load();
+				clickMsc.play();
 			}
 		}
 		document.getElementById('res').onclick = restart;
 		function restart(){
+
+			l.id('res').css('display','none');
+			isLost = false;
+			score = 0;
 			for(var i = 0; i < pipAmout; i++){
 					pipes[i].init();
 					pipes[i].posX = 800 + Math.random() * 800;
@@ -337,7 +390,7 @@
 			
 
 			ani = l.aniFrm(mainloop)
-			b.run() 
+			 
 			for(var i = 0; i < pipAmout; i++){
 				if(pipes[i].score && pipes[i].posX <= 160){
 					score++;
@@ -348,15 +401,16 @@
 				if(b.posX + b.wid>= pipes[i].posX && b.posX <= pipes[i].posX + 40 && b.posY+b.hei >= pipes[i].posY && b.posY<=pipes[i].posY+pipes[i].hei ){
 					
 					// checkScore(score);
-
-					alert('您死了\n分数:'+score)
+					l.id('res').css('display','block');
+					// alert('您死了\n分数:'+score)
+					isLost = true;
 					l.cancelAniFrm(ani)
 					ani = null;
-					score = 0;
 				}
 			}
 			con.fillText("score:"+score,700,30);
-
+			showLoseStr(score);	
+			b.run()
 		}
 	</script>
 </body>

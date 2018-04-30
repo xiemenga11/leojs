@@ -294,7 +294,7 @@
 		return re;
 	}
 	l.times = function (times,callback){
-		for(var i = 0; i < times; i++){
+		for(var i = 0,len = times; i < len; i++){
 			var ret = callback.call(i);
 			if(ret == "continue"){
 				continue;
