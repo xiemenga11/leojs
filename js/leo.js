@@ -681,6 +681,16 @@
 		}
 		return false;
 	}
+	//冒泡排序
+	Array.prototype.bubbleSort = function(){
+		for(var i = 0, len = this.length; i < len ; i++){
+			for(var j = 0 , l = this.length; j < l ; j++){
+				if(this[i] < this[j]){
+					this[i] = [this[j],this[j] = this[i]][0]
+				}
+			}
+		}
+	}
 	String.prototype.toJson = function(){
 		return l.strToJson(this);
 	}
@@ -731,4 +741,5 @@
 	Object.defineProperty(Array.prototype,'max',{enumerable:false})
 	Object.defineProperty(Array.prototype,'findRepeat',{enumerable:false})
 	Object.defineProperty(Array.prototype,'has',{enumerable:false})
+	Object.defineProperty(Array.prototype,'bubbleSort',{enumerable:false})
 }(window,document))
