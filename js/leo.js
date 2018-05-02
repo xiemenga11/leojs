@@ -481,13 +481,17 @@
 		AH:screen.availHeight,
 		AW:screen.availWidth,
 		H:screen.height,
-		W:screen.width
+		W:screen.width,
+		innerH:window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight,
+		innerW:window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
 	}
 	
 	//requestAnimationFrame
 	l.aniFrm = function(func){
-		var _r = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function(func){
-			setTimeout(func,30);
+		var _r = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function(func){
+			setTimeout(function(){
+				func(1000/60);
+			},1000/60);
 		}
 		return _r(func);
 	}
@@ -502,15 +506,17 @@
 
 	// ajax
 	// data = {
+	// 		timeout: 超时时间,默认60000
+	// 		form:formElement表单元素
 	// 		method:get|post,
 	// 		url:地址,
+	// 		json:false,
 	// 		callback:回调函数,
 	// 		data:{key:value},
 	// 		file:{key:input.files[0] || input.files}    input.files 是数组
 	// }
 	l.ajax = function (data){
-		var _formdata = data.form ? data.form : null;
-		var form = new FormData(_formdata);
+		var form = data.form ? new FormData(data.form) : new FormData();
 		var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
 		
 		if(data.data){
@@ -530,38 +536,57 @@
 				}
 			}
 		}
-		
+		setTimeout(function(){
+			xhr.abort();
+		},data.timeout || 60000);
+
 		xhr.open(data.method,data.url,true);
 		xhr.onload=function(){
-			data.callback.call(xhr.responseText);
+			data.callback.call({
+				status:xhr.status,
+				readyState:xhr.readyState,
+				content:data.json ? l.strToJson(xhr.responseText) : xhr.responseText
+			});
 		}
 		xhr.send(form);
 	}
 
 	//判断类型
+	l.isNull = function(data){
+		return (l.getType(data) === "null");
+	}
+	l.isUndefined = function(data){
+		return (l.getType(data) === "undefined");
+	}
 	l.isString = function(data){
-		return (typeof data === "string");
+		return (l.getType(data) === "string");
 	}
 	l.isObject = function(data){
-		return ((data instanceof Object) && !(data instanceof Array) && !l.isArray(data));
+		return (l.getType(data) === "object");
 	}
 	l.isArray = function(data){
-		return ((data instanceof Object) && (data instanceof Array) && !!data.length && data.constructor == Array);
+		return (l.getType(data) === "array");
 	}
 	l.isFunction = function(data){
-		return (typeof data === "function");
+		return (l.getType(data) === "function");
 	}
 	l.isDom = function(data){
-		return ((typeof data === "object") && (data instanceof Object) && ("tagName" in data))
+		var reg = /^html[a-z]*element$/;
+		return reg.test(l.getType(data));
+	}
+	l.isReg = function(data){
+		return (l.getType(data) === 'regexp')
 	}
 	l.isNumber = function(data){
-		return (typeof data === "number");
+		return (l.getType(data) === "number");
 	}
 	l.isBool = function(data){
-		return (typeof data === "boolean");
+		return (l.getType(data) === "boolean");
 	}
-	l.getType = function(data){
-		return l.isArray(data) ? "array" : (typeof data);
+	l.getType = function(o){
+		if(o===null) return "null";
+		if(o===undefined) return "undefined";
+		return (Object.prototype.toString.call(o).slice(8,-1)).toLowerCase();
 	}
 
 	l.strToJson = function (str){
@@ -578,7 +603,7 @@
 	l.getScrollTop = function(){
 		return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
 	}
-	l.random = function(min,max){
+	l.random = function(max,min){
 		var min = min || 0;
 		var max = max || 1;
 		return Math.random() * max + min;
@@ -611,7 +636,9 @@
 		}
 		return this;
 	}
-	
+	Object.prototype.prop = function(key,config){
+		Object.defineProperty(this,key,config)
+	}
 	/**
 	 * 继承
 	 * @param  {func} superType 要继承的父类
@@ -658,20 +685,20 @@
 	    };
 	}
 	Array.prototype.min = function(){
-		if(this.length === 0) return false;
-		var m = this[0];
-		for(var i = 0, len = this.length; i < len ;i++){
-			m = m < Number(this[i]) ? m : this[i];
-		}
-		return m;
+		// if(this.length === 0) return false;
+		// var m = this[0];
+		// for(var i = 0, len = this.length; i < len ;i++){
+		// 	m = m < Number(this[i]) ? m : this[i];
+		// }
+		return Math.min.apply(null,this);
 	}
 	Array.prototype.max = function(){
-		if(this.length === 0) return false;
-		var m = this[0];
-		for(var i = 0, len = this.length; i < len ;i++){
-			m = m < this[i] ? this[i] : m;
-		}
-		return m;
+		// if(this.length === 0) return false;
+		// var m = this[0];
+		// for(var i = 0, len = this.length; i < len ;i++){
+		// 	m = m < this[i] ? this[i] : m;
+		// }
+		return Math.max.apply(null,this);
 	}
 	Array.prototype.findRepeat = function(){return l.findRepeat(this);}
 	//检查数组中是否有指定的元素
@@ -736,6 +763,7 @@
 
 	Object.defineProperty(Object.prototype,'each',{enumerable:false})
 	Object.defineProperty(Object.prototype,'extend',{enumerable:false})
+	Object.defineProperty(Object.prototype,'prop',{enumerable:false})
 	Object.defineProperty(Array.prototype,'shuffle',{enumerable:false})
 	Object.defineProperty(Array.prototype,'min',{enumerable:false})
 	Object.defineProperty(Array.prototype,'max',{enumerable:false})

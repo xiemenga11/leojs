@@ -54,8 +54,22 @@
 	<script src="../js/leo.js"></script>
 	<!--<script src="../js/Bmob-min.js"></script>-->
 	<script>
-		// alert("提示\n--------------------\n空格:跳跃\n回车:重新开始")
-		// Bmob.initialize('2fc7347823fc0ad00b00121b3cea9354','09c5119023607cef6917d2136e4c1b27');
+		function launchFullscreen(element) {
+		  if(element.requestFullscreen) {
+		    element.requestFullscreen();
+		  } else if(element.mozRequestFullScreen) {
+		    element.mozRequestFullScreen();
+		  } else if(element.msRequestFullscreen){
+		    element.msRequestFullscreen();
+		  } else if(element.webkitRequestFullscreen) {
+		    element.webkitRequestFullScreen();
+		  }
+		}
+
+		launchFullscreen(document.documentElement);
+		
+
+
 		var clickMsc = l.create({
 			tag:'audio'
 		}).dom;
@@ -83,6 +97,18 @@
 		var pipeImg = new Image();
 		pipeImg.src = 'pipe.jpg';
 
+		con.font="20px Arial bolder";
+		con.fillStyle = "#fff";
+		con.lineWidth = 2;
+		con.lineCap = 'round';
+		con.strokeStyle = '#113300';
+		var isLost = false;
+		var screenWid = l.scr.W;
+		var score = 0;
+		var d = 0;
+		var birdImg = new Image();
+		birdImg.src = 'bird.png';
+
 		var Body = function(bg,pianyi,body,posX,posY,speed){
 			this.body = body;
 			this.posX = posX || 0;
@@ -105,14 +131,7 @@
 			}
 		}
 
-		con.font="20px Arial bolder";
-		con.fillStyle = "#fff";
-		con.lineWidth = 2;
-		con.lineCap = 'round';
-		con.strokeStyle = '#113300';
-		var isLost = false;
-		var screenWid = l.scr.W;
-		var score = 0;
+		
 
 		function showLoseStr(sc){
 			if(!isLost) return;
@@ -214,9 +233,7 @@
 			}
 		}
 
-		var d = 0;
-		var birdImg = new Image();
-		birdImg.src = 'bird.png';
+		
 		Bird.prototype = {
 			init:function(){
 				this.wid = 30;
@@ -263,45 +280,7 @@
 			}
 		}
 
-		// var Lev = Bmob.Object.extend('gamelev');
-		// var lev = new Lev();
-		// var quer = new Bmob.Query(Lev);
-		// quer.descending('score');
-		// quer.find({
-		// 	success:function(ret){
-		// 		var arr = [];
-		// 		for(var i = 0,len = ret.length; i < len;i++){
-		// 			arr.push({
-		// 				id:ret[i].id,
-		// 				name:ret[i].get('name'),
-		// 				score:ret[i].get('score')
-		// 			})
-		// 		}
-		// 		localStorage['gameData'] = JSON.stringify(arr);
-		// 	}
-		// })
-		function checkScore(score){
-			if(localStorage['gameData']){
-				var gameArr = l.strToJson(localStorage['gamelev']);
-				for(var i = 0, len = gameArr.length; i < len ; i++){
-					if(score > ~~gameArr[i].score){
-						
-						/**
-						 * 你需要在这里写排行榜代码
-						 *
-						 *
-						 *
-						 *
-						 *
-						 * 
-						 */
-
-
-
-					}
-				}
-			}
-		}
+		
 
 		
 		var b = new Bird();

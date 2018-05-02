@@ -12,48 +12,73 @@
 			width:100%;
 			height:100%;
 		}
+		#con{
+			position: fixed;
+			top:10px;
+			right:10px;
+			background-color: rgba(0,0,0,0.3);
+			color:white;
+			padding:10px;
+			line-height: 20px;
+		}
 	</style>
 </head>
 <body>
 	<canvas id="game" width="1000" height="600"></canvas>
-
-
+	<div id="con">
+		<span>a</span><input type="range" max="1" step="0.1" min="-1" v-model="a"><br>
+		<span>b</span><input type="range" max="1" step="0.1" min="-1" v-model="b"><br>
+		<span>c</span><input type="range" max="1" step="0.1" min="-1" v-model="c"><br>
+		<span>d</span><input type="range" max="1" step="0.1" min="-1" v-model="d"><br>
+		<span>e</span><input type="range" max="1" step="0.1" min="-1" v-model="e"><br>
+		<span>f</span><input type="range" max="1" step="0.1" min="-1" v-model="f">
+	</div>
+	<script src="../js/vue.js"></script>
 	<script src="../js/leo.js"></script>
 	<script src="js/leo.game.js"></script>
 	<script src="js/snake.class.js"></script>
 	<script>
+		var con = new Vue({
+			el:"#con",
+			data:{
+				a:0,
+				b:0,
+				c:0,
+				d:0,
+				e:0,
+				f:0
+			}
+		})
 		var g = new Game('game');
-		var snake = new Snake(g);
-		snake.body.push(new SnakeBody({
-			game:g,
-			wid:10,
-			hei:10,
-			posx:445,
-			posy:295
-		}))
-
-
-		g.startLoop(function(){
-			snake.run()
+		var c = g.canvas;
+		var index = 0;
+		var imgs = [];
+		var dis = 500;
+		for(var i = 0; i < 8; i++){
+			var img = new Image();
+			img.src = 'img/cowboy/walk_' + i + '.png';
+			imgs.push(img);
+		}
+		var inter = new Game.Interval(g,50,function(){
+			index < 7 ? index ++  : index = 0;
 		})
-
-		l.times(100,function(){
-			snake.eat();
+		g.startLoop(function(t){
+			inter.run();
+			c.save()
+			c.translate(dis,300);
+			c.setTransform(con.a,con.b,con.c,con.d,500*con.e,500*con.f)
+			c.drawImage(imgs[parseInt(index)],0,0)
+			c.restore()
+			g.setMsg({
+				a:con.a,
+				b:con.b,
+				c:con.c,
+				d:con.d,
+				e:con.e,
+				f:con.f
+			})
+			g.infoMonitor(t);
 		})
-
-		l.id('game').on('mousemove',function(e){
-			var e = e || event;
-			snake.body[0].posx = e.offsetX / l.scr.W * 1000;
-			snake.body[0].posy = e.offsetY / l.scr.H * 600;
-
-			g.monitorConfig.msgObj.mouseX = e.offsetX;
-			g.monitorConfig.msgObj.mouseY = e.offsetY;
-		})
-
-		var arr = [4,3,1,6,5,8];
-		console.log(arr);
-		arr.bubbleSort()
-		console.log(arr);
 	</script>
 </body>
 </html>

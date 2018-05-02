@@ -3,58 +3,72 @@
 <head>
 	<meta charset="UTF-8">
 	<title>test</title>
+	<link rel="stylesheet" href="css/main.css">
 	<style>
 	*{
 		user-select:none;
 	}
 	body{
-		background-color: #eee;
+		padding: 0;
+		margin:0;
 	}
-	#wrap{
-		height: 500px;
-		width:400px;
-		padding:10px;
-		background-color: #fff;
+	
+	#can{
+		width:100%;
+		height:100%;
+		background-color: skyblue;
+	}
+	[data-role],
+	[data-role] *{
+		background-color: red;
+		color:white;
 	}
 	</style>
 </head>
 <body>
-	
+	<!-- <canvas id="can" width="1000" height="600"></canvas> -->
+	<div data-role="master" class="test">这是一个模板{%name%}议会 楞<h1>sex:{%sex%}</h1><h2>my age is {%age%}</h2></div>
+	<img src="" alt="" class="test">
+	<a href="" class="test"></a>
+	<p class="test"></p>
+	<table class="test"><tr class="test"></tr></table>
+	<i class="test"></i>
+	<b class="test"></b>
+	<em class="test"></em>
+	<span class="test"></span>
+	<input type="text" class="test">
 <script src="js/leo.js"></script>
-<script src="js/vue.js"></script>
-<script src="js/bmob-min.js"></script>
+<script src="js/leo.game.js"></script>
 <script>
 	
-    Bmob.initialize('2fc7347823fc0ad00b00121b3cea9354','09c5119023607cef6917d2136e4c1b27');
-    var Post = Bmob.Object.extend("Post");
-	var Comment = Bmob.Object.extend("Comment");
-
-	// Create the post
-	var myPost = new Post();
-	myPost.set("title", "I'm Hungry");
-	myPost.set("content", "Where should we go for lunch?");
-
-	// Create the comment
-	var myComment = new Comment();
-	myComment.set("content", "Let's do Sushirrito.");
-
-	// Add the post as a value in the comment
-	myComment.set("parent", myPost);
-
-	// This will save both myPost and myComment
-	myComment.save();
-	var query = new Bmob.Query(Comment);
-	query.find({
-		success:function(ret){
-			document.write(JSON.stringify(ret))
-			var par = ret[0].get('parent');
-			par.fetch({
-				success:function(r){
-					alert(JSON.stringify(r))
+	l.PLUS({
+		load:function(data){
+			var that = this;
+			var str = this.html();
+			this.html(this.html().replace(/\{%\w*%\}/g,''))
+			l.ajax({
+				url:data.url,
+				method:'get',
+				json:data.json || false,
+				callback:function(){
+					if(data.json){
+						for(var i in this.content){
+							str = str.replace('{%' + i + '%}',this.content[i])
+						}
+					}else{
+						str = data.reg 
+							? str.replace(data.reg,this.content)
+							: this.content
+					}
+					that.html(str)
 				}
 			})
 		}
 	})
+	l._class('test').load({
+		url:'json.txt',
+		json:true
+	});
 </script>
 </body>
 </html>
