@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>背景连线</title>
+	<style>
+		*{
+			padding:0;
+			margin:0;
+		}
+		html,
+		body{
+			height:100%;
+			width:100%;
+			font-size: 0;
+		}
+		#can{
+			background-color: #000;
+			width:100%;
+			height:100%;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="can" ></canvas>
+	<script src="js/leo.js"></script>
+	<script>
+		var can = document.getElementById('can');
+			can.width = l.scr.innerW;
+			can.height = l.scr.innerH;
+		var con = can.getContext('2d');
+		var wid = can.width,
+			hei = can.height;
+		var dotArr = [];
+		con.fillStyle = "white";
+		con.strokeStyle = "white";
+
+		function drawDot(x,y){
+			con.beginPath()
+			con.arc(x,y,2,0,2*Math.PI)
+			con.fill()
+			con.closePath()
+		}
+		l.times(100,function(){
+			dotArr.push([Math.random() * wid,Math.random() * hei,Math.sin(Math.random() * (2 * Math.PI)),Math.sin(Math.random() * (2 * Math.PI))])
+		})
+
+		dotArr.each(function(){
+			drawDot.apply(null,this)
+		})
+
+		var ani;
+		function move(){
+			con.clearRect(0,0,wid,hei)
+
+			for(var i = 0,len = dotArr.length; i < len; i++){
+				for(var j = 0,len = dotArr.length; j <len ; j++){
+					var x = Math.abs(dotArr[i][0] - dotArr[j][0]);
+					var y = Math.abs(dotArr[i][1] - dotArr[j][1]);
+					if(x*x + y*y <= 10000){
+						con.beginPath()
+						con.moveTo(dotArr[i][0],dotArr[i][1])
+						con.lineTo(dotArr[j][0],dotArr[j][1])
+						con.stroke()
+						con.closePath()
+					}
+				}
+			}
+			dotArr.each(function(){
+				if(this[0] >= wid || this[0] <= 0) this[2] *= -1;
+				if(this[1] >= hei || this[1] <= 0) this[3] *= -1;
+				this[0] += this[2];
+				this[1] += this[3];
+				drawDot.apply(null,this)
+			})	
+			ani = l.aniFrm(move)
+		}
+		ani = l.aniFrm(move)
+	</script>
+</body>
+</html>

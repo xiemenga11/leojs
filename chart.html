@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>chart</title>
+</head>
+<body>
+	<div id="chart"></div>
+	<script src="js/leo.js"></script>
+	<script src="js/chart.js"></script>
+	<script>
+		var c = new Chart({
+			el:l.id('chart')
+		})
+		c.setData({
+			step:10,
+			data:[10,30,50,12]
+		})
+	</script>
+</body>
+</html>

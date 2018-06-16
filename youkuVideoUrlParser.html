@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>优酷视频地址转外链</title>
+</head>
+<body>
+	视频地址<input type="text" id="address"><input type="button" value="转换" id="btn"><br>
+	外链地址<h2 id="res"></h2>
+	<iframe id="preview" src="" frameborder="0" width="800" height="400"></iframe>
+	<script>
+		var adr = document.getElementById('address');
+		var res = document.getElementById('res');
+		var btn = document.getElementById('btn');
+		var reg = /id_[a-zA-Z0-9]+==/;
+		var preview = document.getElementById('preview');
+		btn.onclick = function(){
+			// http://v.youku.com/v_show/id_XMzYzMDA3MzgwNA==.html?spm=a2hww.20027244.m_250036.5~5!2~5~5~5~5~A
+			// 
+			// http://player.youku.com/embed/XMzYzMDA3MzgwNA==
+			var val = adr.value;
+			var adrStr = val.match(reg)[0].substr(3);
+			res.innerHTML = '<a href="http://player.youku.com/embed/' + adrStr + '" target="blank">http://player.youku.com/embed/' + adrStr + '</a>';
+			preview.src = 'http://player.youku.com/embed/' + adrStr;
+		}
+
+	</script>
+</body>
+</html>

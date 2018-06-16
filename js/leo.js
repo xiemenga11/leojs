@@ -147,6 +147,13 @@
 				this.dom[arguments[0]] = arguments[1];
 			}
 			return this;
+		},
+		hide:function(){
+			this.data('display',this.css('display'));
+			this.css('display','none');
+		},
+		show:function(){
+			this.css('display',this.data('display') || this.css('display'));
 		}
 	}
 	
@@ -583,6 +590,11 @@
 	l.isBool = function(data){
 		return (l.getType(data) === "boolean");
 	}
+
+	l.isMobile = function(){
+		return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+	}
+
 	l.getType = function(o){
 		if(o===null) return "null";
 		if(o===undefined) return "undefined";

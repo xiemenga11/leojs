@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document </title>
+	<link rel="stylesheet" href="../css/main.css">
+	<style>
+		#main{
+			height: 100%;
+			width: 100%;
+		}
+		body{
+			font-size: 0;
+			padding:20px;
+		}
+		
+	</style>
+</head>
+<body>
+	<canvas id="main" width="1000" height="600"></canvas>
+<script src="../js/leo.js"></script>
+<script src="../js/vue.js"></script>
+<script>
+	var main = l.id('main');
+	var con = main.dom.getContext('2d');
+	con.lineWidth = 1;
+	con.font = '20px Arial';
+	con.textBaseline = 'middle';
+	con.translate(10,10)
+
+	function cInit(obj,callback){
+		con.save()
+		con.beginPath()
+		callback.call(obj)
+		con.closePath()
+		con.restore()
+	}
+
+	var Frame = function(data){
+		this.wid = data.wid;
+		this.hei = data.hei;
+		this.blw = data.blw;
+		this.zzw = data.zzw;
+		this.zz = [];//中柱
+		this.hl = [];//横柱
+		this.gb = [];//固玻
+		this.c = [];//窗扇
+		this.scale = 1;//缩放
+		this.draw()
+	}
+
+
+	Frame.prototype = {
+		//添加中柱
+		addZZ:function(x,y,hei){
+			this.zz.push({
+				x:x,
+				y:y,
+				hei:hei
+			})
+			this.draw()
+		},
+		frameRuler:function(){
+			var wid = this.wid;
+			var hei = this.hei;
+			var textWid = con.measureText(wid).width;
+			cInit(this,function(){
+			// console.log((this.wid - con.measureText(wid).width) / 2)
+				con.moveTo(0,this.hei + 3)
+				con.lineTo(0,this.hei + 100)
+				con.stroke()
+			})
+			cInit(this,function(){
+				con.moveTo(this.wid,this.hei + 3)
+				con.lineTo(this.wid,this.hei + 100)
+				con.stroke()
+			})
+			cInit(this,function(){
+				con.moveTo(0,this.hei + 80)
+				con.lineTo((this.wid - textWid) / 2,this.hei + 80)
+				con.stroke()
+			})
+			cInit(this,function(){
+				con.moveTo((this.wid - textWid) / 2 + textWid,this.hei + 80)
+				con.lineTo(this.wid,this.hei + 80)
+				con.stroke()
+			})
+			cInit(this,function(){
+				con.fillText(wid,(this.wid-textWid) / 2,this.hei + 80)
+			})
+		},
+		addHL:function(x,y,wid){
+			this.hl.push({
+				x:x,
+				y:y,
+				wid:wid
+			})
+			this.draw()
+		},
+		draw:function(){
+			var that = this;
+			con.clearRect(0,0,1000,600);
+			this.frameRuler()
+			//frame
+			cInit(this,function(){
+				con.strokeRect(0,0,this.wid,this.hei)
+				con.strokeRect(this.blw,this.blw,this.wid-2*this.blw,this.hei-2*this.blw)
+			})
+			cInit(this,function(){
+				con.moveTo(0,0)
+				con.lineTo(this.blw,this.blw)
+				con.stroke()
+			})
+			cInit(this,function(){
+				con.moveTo(this.wid,0)
+				con.lineTo(this.wid-this.blw,this.blw)
+				con.stroke()
+			})
+			cInit(this,function(){
+				con.moveTo(0,this.hei)
+				con.lineTo(this.blw,this.hei-this.blw)
+				con.stroke()
+			})
+			cInit(this,function(){
+				con.moveTo(this.wid,this.hei)
+				con.lineTo(this.wid-this.blw,this.hei-this.blw)
+				con.stroke()
+			})
+			//frame end
+			//
+			
+			//中柱
+			this.zz.each(function(){
+				var x = this.x - that.zzw / 2;
+				var y = this.y;
+				var hei = this.hei;
+				if(x < that.blw){
+					x = that.blw
+				}else if(x > that.wid-that.blw-that.zzw){
+					x = that.wid-that.blw-that.zzw;
+				}
+				if(hei > that.hei - that.blw * 2){
+					hei = that.hei - that.blw * 2;
+				}
+				if(y < that.blw){
+					y = that.blw
+				}else if(y + hei > that.hei - that.blw){
+					y = that.hei - that.blw - hei
+				}
+				con.strokeRect(x,y,that.zzw,hei)
+			})
+
+
+			//横柱
+			this.hl.each(function(){
+
+			})
+			
+		}
+	}
+
+	var f = new Frame({
+		wid:500,
+		hei:500,
+		blw:40,
+		zzw:40
+	})
+	f.addZZ(300,100,900)
+</script>
+</body>
+</html>

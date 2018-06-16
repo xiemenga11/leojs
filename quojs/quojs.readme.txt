@@ -1,0 +1,188 @@
+Quo JS介绍
+
+Quo JS旨在简化你的移动开发项目的代码量，针对当前的移动设备优化代码运行，支持单点、多点、滑动、按住等多种手势的操作。
+专为移动
+
+为了改变你的目标，编写JavaScript的方式：一个好的API库5-6k gzip压缩过的所以你可以集中精力处理最基本的东西做苦力的工作。开源的MIT许可下发布，让您可以使用它，修改它在每一种情况。
+轻量级
+
+当前的JavaScript库对移动支持不友好，这是非常大的图书馆，是基于桌面设备的要求创建的，所以移动性能不是最优的。不必触摸事件或语义API可以帮助开发者创造一个良好的和凉爽的好支持JavaScript。
+支持的事件
+
+QuoJS supports the following gestures:
+
+    Tap
+    Single Tap
+    Double-Tap
+    Hold
+    2xFingers Tap
+    2xFingers Double-Tap
+    Swipe Up
+    Swipe Right
+    Swipe Down
+    Swipe Left
+    Swipe
+    Drag
+    Rotate Left
+    Rotate Right
+    Rotate
+    Pinch Out
+    Pinch
+    Fingers
+
+So you can also use QuoJS for mobile applicatios.
+兼容性
+
+    Mobile Browsers: Android Navigator 4+, Chrome for Android, Safari, FirefoxOS & Blackberry
+    Desktop Browsers (no gestures available): Chrome 30+, Safari 4+, Firefox 24+ & Opera.
+
+使用方法
+
+初始化quo js插件使用$$命名空间，因为大多数插件例如jQuery等使用$这个字符。
+
+// Find all <span> elements in <p> elements
+$$('span', 'p');
+
+//Subscribe to a tap event with a callback
+$$('p').tap(function() {
+    // affects "span" children/grandchildren
+    $$('span', this).style('color', 'red');
+});
+
+// Chaining methods
+$$('p > span').html('tapquo').style('color', 'blue');
+
+查询方法
+
+quojs有DOM元素已经使用在其他著名的图书馆非常相似的查询引擎。很多的方法已经在你使用jQuery，这里有他们的版本：
+
+// jQuery Compatible Query methods
+.get(index)
+.find('selector')
+.parent()
+.siblings('selector')
+.children('selector')
+.first()
+.last()
+.closest('selector')
+.each(callback)
+
+元素方法
+
+quojs有DOM元素的查询引擎，已经使用在其他著名的图书馆非常相似。很多的方法已经在你使用jQuery，这里有他们的版本：
+
+// Get/Set element attribute
+.attr('attribute')
+.attr('attribute', 'value')
+.removeAttr('attribute')
+// Get/Set the value of the "data-name" attribute
+.data('name')
+.data('name', 'value')
+// Get/Set the value of the form element
+.val()
+.val('value')
+// Show/Hide a element
+.show()
+.hide()
+// get object dimensions in px
+.offset('selector')
+.height()
+.width()
+// remove element
+.remove()
+
+样式方法
+
+你可以很容易地与quojs管理你的项目的任何DOM元素的CSS样式。该方法是完全详细所以要记得应用CSS3全功率很容易。
+
+// set a CSS property
+.style('css property', 'value')
+ // add/remove a CSS class name
+.addClass('classname')
+.removeClass('classname')
+.toggleClass('classname')
+// returns true of first element has a classname set
+.hasClass('classname')
+// Set a style with common vendor prefixes
+.vendor('transform', 'translate3d(50%, 0, 0)');
+
+$$('article').style('height', '128px');
+$$('article input').addClass('hide');
+
+var houses = $$('.house');
+if (houses.hasClass('ghost')) {
+    houses.addClass('buuhh');
+}
+
+DOM操作方法
+
+这些方法允许我们插入/更新到一个现有的元素内容。
+
+// get first element's .innerHTML
+.html()
+// set the contents of the element(s)
+.html('new html')
+// get first element's .textContent
+.text()
+// set the text contents of the element(s)
+.text('new text')
+// add html (or a DOM Element) to element contents
+.append(), prepend()
+// If you like set a new Dom Element in a existing element
+.replaceWith()
+// Empty element
+.empty()
+
+$$('article').html('tapquo');
+var content = $$('article').html(); //content is 'tapquo'
+
+事件处理
+
+每一个前端项目需要一个事件的有效管理，您可以创建自己的事件和监听的现有事件。
+
+// add event listener to elements
+.on(type, [selector,] function);
+
+
+// remove event listener from elements
+.off(type, [selector,] function);
+
+
+// triggers an event
+.trigger(type);
+
+
+//If loaded correctly all resources
+.ready(function);
+
+// Subscribe for a determinate event
+$$(".tapquo").on("tap", function);
+
+
+// Trigger custom event
+$$(".quojs").trigger("loaded");
+
+
+// Loaded page
+$$.ready(function() {
+    alert("QuoJS rulz!");
+});
+
+手势事件
+
+尽管浏览器只支持触摸事件你有许多事件quojs和手势来帮助你做出一个可用的项目。
+
+//Tap event, common event
+.tap(function);
+
+
+//Long tap event (650 miliseconds)
+.hold(function);
+
+
+//A tap-delay event to combine with others events
+.singleTap(function);
+
+
+//If you send two singleTap
+.doubleTap(function);
