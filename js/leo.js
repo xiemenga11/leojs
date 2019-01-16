@@ -35,6 +35,7 @@
 		}
 	}
 
+	
 
 
 	var _l = function(dom){
@@ -184,6 +185,12 @@
 	// 	}
 	// }	
 
+	l.q = function (queryStr){
+		return document.querySelector(queryStr)
+	}
+	l.qa = function(queryStr){
+		return document.querySelectorAll(queryStr)
+	}
 	l.id = function(id){
 		return new _l(document.getElementById(id));
 	}
@@ -229,7 +236,7 @@
 	 * 	attr:(obj)元素属性,比如href,src等等,
 	 * 	_class:(str)样式名称,
 	 * 	style:(obj)行内样式,
-	 * 	content:(str)内容,
+	 * 	content:(str | dom | ldom)内容,
 	 * 	parent:(dom | ldom)父元素
 	 * }
 	 * @return {dom}      创建的元素
@@ -511,8 +518,10 @@
 		cancelAnimationFrame ? cancelAnimationFrame(aniFrm) : clearTimeout(aniFrm);
 	}
 
+
 	// ajax
 	// data = {
+	// 		progress:true || false ; 是否打开过程指示,默认开启
 	// 		timeout: 超时时间,默认60000
 	// 		form:formElement表单元素
 	// 		method:get|post,
@@ -545,6 +554,7 @@
 		}
 		setTimeout(function(){
 			xhr.abort();
+
 		},data.timeout || 60000);
 
 		xhr.open(data.method,data.url,true);
@@ -620,6 +630,36 @@
 		var max = max || 1;
 		return Math.random() * max + min;
 	}
+
+	l.mask = function(content,style){
+		var wid = l.scr.innerW,
+			hei = l.scr.innerH;
+		var stl = {
+				width:wid + 'px',
+				height:hei + 'px',
+				backgroundColor:'rgba(0,0,0,0.6)',
+				color:'white',
+				position:'fixed',
+				top:0,
+				left:0,
+				fontWeight:'bold',
+				fontSize:'20px',
+				lineHeight:hei + 'px',
+				textAlign:'center'
+			};
+		if(style){
+			for(var i in style){
+				stl[i] = style[i]
+			}
+		}
+
+		return l.create({
+			tag:'div',
+			content:content,
+			style:stl,
+			parent:l.q('body')
+		})
+	}
 	/**
 	 * 添加插件
 	 * @param {obj} method 添加方法对象
@@ -648,7 +688,7 @@
 		}
 		return this;
 	}
-	Object.prototype.prop = function(key,config){
+	Object.prototype.property = function(key,config){
 		Object.defineProperty(this,key,config)
 	}
 	/**
@@ -775,7 +815,7 @@
 
 	Object.defineProperty(Object.prototype,'each',{enumerable:false})
 	Object.defineProperty(Object.prototype,'extend',{enumerable:false})
-	Object.defineProperty(Object.prototype,'prop',{enumerable:false})
+	Object.defineProperty(Object.prototype,'property',{enumerable:false})
 	Object.defineProperty(Array.prototype,'shuffle',{enumerable:false})
 	Object.defineProperty(Array.prototype,'min',{enumerable:false})
 	Object.defineProperty(Array.prototype,'max',{enumerable:false})

@@ -28,7 +28,7 @@
 <body>
 	<!-- <canvas id="can" width="1000" height="600"></canvas> -->
 	<div data-role="master" class="test">这是一个模板{%name%}议会 楞<h1>sex:{%sex%}</h1><h2>my age is {%age%}</h2></div>
-	<img src="" alt="" class="test">
+	<img id="test" src="" alt="" class="test">
 	<a href="" class="test"></a>
 	<p class="test"></p>
 	<table class="test"><tr class="test"></tr></table>
@@ -37,6 +37,7 @@
 	<em class="test"></em>
 	<span class="test"></span>
 	<input type="text" class="test">
+	<canvas id='can'></canvas>
 <script src="js/leo.js"></script>
 <script src="js/leo.game.js"></script>
 <script>
@@ -70,11 +71,24 @@
 		json:true
 	});
 
-	if(l.isMobile()){
-		alert('this is mobile')
-	}else{
-		alert('this is pc')
+	var can = l.id('can');
+	var con = can.dom.getContext('2d');
+	var test = l.id('test');
+	var img = new Image();
+	img.src = 'img/fanfankanBG.jpg';
+	img.onload = function(){
+		con.drawImage(img,0,0,100,100);
+
+		var url = can.dom.toDataURL('img/png')
+		console.log(url)
+		console.dir(img)
+		test.dom.src = url
+		test.css({
+			border:'1px solid red'
+		})
 	}
+
+
 </script>
 </body>
 </html>
