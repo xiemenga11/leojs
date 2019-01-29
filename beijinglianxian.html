@@ -50,6 +50,23 @@
 		})
 
 		var ani;
+
+		document.onmousemove = function(e){
+			var e = e || event;
+
+			for(var j = 0,len = dotArr.length; j <len ; j++){
+				var x = Math.abs(e.offsetX - dotArr[j][0]);
+				var y = Math.abs(e.offsetY - dotArr[j][1]);
+				if(x*x + y*y <= 10000){
+					con.beginPath()
+					con.moveTo(e.offsetX,e.offsetY)
+					con.lineTo(dotArr[j][0],dotArr[j][1])
+					con.stroke()
+					con.closePath()
+				}
+			}
+		}
+
 		function move(){
 			con.clearRect(0,0,wid,hei)
 
