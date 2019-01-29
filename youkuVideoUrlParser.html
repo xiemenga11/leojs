@@ -3,10 +3,53 @@
 <head>
 	<meta charset="UTF-8">
 	<title>优酷视频地址转外链</title>
+	<link rel="stylesheet" href="css/main.css">
+	<style>
+		img{
+			display: block;
+			width:200px;
+			margin:0 auto;
+		}
+		.input-box{
+			border:1px solid #007aff;
+			border-radius: 3px;
+			/*margin:10px;*/
+			width:800px;
+			margin:10px auto;
+		}
+		#btn,
+		.input-box .label{
+			background-color: #007aff;
+			color:white;
+			padding:5px 10px;
+			border:none;
+		}
+		#res,
+		#address{
+			border:none;
+			flex-grow:2;
+			padding:0 10px;
+		}
+		#preview{
+			width:800px;
+			height:400px;
+			margin:0 auto;
+			display: block;
+		}
+	</style>
 </head>
 <body>
-	视频地址<input type="text" id="address"><input type="button" value="转换" id="btn"><br>
-	外链地址<h2 id="res"></h2>
+	<img src="img/youkuLogo.jpg" alt="">
+	<!-- 视频地址<input type="text" id="address"><input type="button" value="转换" id="btn"><br> -->
+	<div class="input-box flex">
+		<div class="label">视频地址</div>
+		<input id="address" type="text">
+		<input type="button" value="转换" id="btn">
+	</div>
+	<div class="input-box flex">
+		<div class="label">外链地址</div>
+		<div id="res"></div>
+	</div>
 	<iframe id="preview" src="" frameborder="0" width="800" height="400"></iframe>
 	<script>
 		var adr = document.getElementById('address');

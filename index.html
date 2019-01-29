@@ -32,8 +32,8 @@
 <body>
 	<h1 id="header" class="txtc">阿蒙的小工具</h1>
 	<div id="content" v-cloak>
-		<span class="btn" v-for="i in config" @click="openFrm(i.url)">{{i.name}}</span>
-		<iframe v-show="frmShow" :src="currentPage" frameborder="0" id="frm"></iframe>
+		<span class="btn" v-for="i in config" @click="openFrm(i)">{{i.name}}</span>
+		<iframe v-show="frmShow" :src="currentPage.url" frameborder="0" id="frm"></iframe>
 		<div v-show="frmShow" @click="closeFrm" class="close-btn">回到首页</div>
 	</div>
 
@@ -50,9 +50,11 @@
 		methods:{
 			closeFrm:function(){
 				this.frmShow = false;
+				document.title = "阿蒙的小工具";
 			},
-			openFrm:function(url){
-				this.currentPage = url;
+			openFrm:function(page){
+				this.currentPage = page;
+				document.title = page.name;
 				this.frmShow = true;
 			}
 		}

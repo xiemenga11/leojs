@@ -13,5 +13,8 @@ var config = [
 	},{
 		name:'飞翔小鸟',
 		url:'flappyBird/index.html'
+	},{
+		name:'抽奖系统',
+		url:'choujiang/index.html'
 	}
 ]
